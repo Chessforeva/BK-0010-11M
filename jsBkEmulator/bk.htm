@@ -1,0 +1,628 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="icon" href="faviconBK.ico" type="image/x-icon">
+<title>BK-0010,11M online HTML5 javascript emulator - Эмулятор БК-0010-01, БК-0011M</title>
+</head>
+<body onload="loaded()" background="bk_bg.jpg" bgcolor="#8A8AA4">
+
+<div id="bg" style="width:980px;height:820px;position:absolute;top:0px;left:0px;" onmousedown="preventaction(event)"></div>
+
+
+<!--
+BK-0010-01, BK-0011M emulator HTML5 javascript
+
+version 1.e (04.2020)
+freeware for deployment on any server
+
+Эмулятор БК-0010-01, БК-0011M
+  исходняк: java BK2010 очень хороший с классами и минимальный
+  
+  NO TAPE. Standard FLOPPY DISKS.
+  Poor sounds: Speaker, Covox and AY8910 (mixed or 3 channels).
+
+BK was the most popular Soviet home computer during 80s-90s,
+Btw,16 bit CPU!
+-->
+
+<style>
+.disSel{ -webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+outline: 0;
+}
+.Ckbx { width: 20px; height: 20px; }
+</style>
+
+<script type="text/javascript">
+var href = document.location.href;
+	
+WindoW = { width: window.innerWidth ||
+	document.documentElement.clientWidth || document.body.clientWidth,
+	height: window.innerHeight || 
+	document.documentElement.clientHeight || document.body.clientHeight };
+
+
+</script>
+
+<!-- Canvas BK_canvas -->
+<div class="disSel" id="dropfile" style="position:absolute;left:0px;top:0px;
+	width:674px;height:432px;
+        border: 2px dashed #333333; border-radius: 5px;
+        text-align: center; font: 12pt bold; color: black;"
+>
+<div id="filesloaded" style="display:inline">
+Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
+</div>
+
+<canvas id="BK_canvas" width="512px" height="256px" class="disSel"
+ style ="position:absolute;left:6px;top:20px;width:660px;height:400px;">
+</canvas>
+</div>
+
+<!-- User GUI options -->
+<div id="options" class="disSel" style ="position:absolute;left:0px;top:440px;">
+ <table><tr>
+ 
+ <td valign="top">
+ <select id="userboot" title="Booting options" onchange="userBoot()">
+  <option value="B10">BK0010 + Basic ROM</option>
+  <option value="RST">Reset restart (F12)</option>  
+  <option value="RLD">Reload clear all </option>
+  <option value="F10">BK0010 + Focal ROM</option>
+  <!--<option value="base10">BK0010 monitor only</option>-->
+  <option value="FDD10">BK0010+FDD  and drop ...</option>
+  <option value="FDD11">BK0011M+FDD ...a file</option>
+  <option value="Alx0A330">Alex(BK10 DBASIC FDD)</option>
+  <option value="Alx1A330">AlexANDOS330(BK11)</option>
+  <option value="CSIMir">CSI-DOS 3.32 mir</option>
+  <option value="MPage">CSI-DOS A:B:samples</option>
+  <option value="AODOS">AODOS 2.10 +chess</option>
+  <option value="MKDOS">MKDOS 2.10</option>
+  <option value="Robcop">BASIC BK11 +Robocop A:</option>
+  <option value="Revolt">MKDOS 3.17 +Revolt A:B:</option>
+  <option value="NORDBK">Nord OS 2.11 (BK10)</option>
+  <option value="POP">Prince Of Persia game</option>
+  <option value="Mega">MegaDemo +music</option>
+  <option value="MzRz">MusicRelease demo</option>
+  <option value="Insl">Insult music demo</option>
+  <option value="BKMna">BK-Mania 97,96 A:B:</option>
+  <option value="AOMD2">Media disk#1 in B:</option>
+  <option value="AOMD3">Media disk#2 in B:</option>
+  <option value="Covox">Covox sound drill,ugh...</option>
+  <option value="Cheat">How to cheat lives!</option>
+  <!--<option value="aDSK0">Add unformatted disk</option>-->
+ </select>
+ <br>
+  <table><tr>
+ <td><font size="2"><div id="PCaddr"></div></font></td><td width="4"></td>
+ <td><font size="2"><div id="MHZshow"></div></font></td><td width="4"></td>	
+ </tr></table>
+ <input type="button" id="kbrd" value="Show keyboard" onclick="kbShow()">
+ </td><td width="2"></td>
+ 
+ <td valign="top"><select id="usercolor" title="Color schemes" onchange="userColor()">
+  <option value="WB">W/B</option>
+  <option value="GR4">Gray4</option>
+  <option value="COL">Col16</option>
+ </select></td><td width="2"></td>
+ 
+ <td valign="top">
+ <select id="userspeed" onchange="userSpeed()"
+	title="Adjust speed = CPU cycles x Times per second, if can">
+  <option value="4MHz">~4Mhz</option>
+  <option value="an4MHz">anim.4Mhz</option>
+  <option value="C4M">cyc240K x20</option>
+  <option value="">--slower--</option>
+  <option value="3MHz">~3Mhz</option>
+  <option value="an3MHz">anim.3Mhz</option>
+  <option value="C3M">cyc180K x20</option>
+  <option value="CS1">240K x10</option>
+  <option value="CS2">120K x10</option>
+  <option value="CS3">24K x30</option>
+  <option value="CS4">24K x10</option>
+  <option value="CY5">2400 x50</option>
+  <option value="">++faster++</option>
+  <option value="CF1">300K x20</option>  
+  <option value="CF2">460K x30</option>
+  <option value="CF3">500K x30</option>
+  <option value="CF4">1M x10</option>
+ </select></td>	<td width="2"></td>
+ 
+ <td valign="top">
+ <select id="usergames" title="Loads and starts .BIN files"
+	onchange="userGames()">
+  <option value="">♠♣♥♦ Games ♠♣♥♦</option>
+  <option value="bkdemo.zip">BK Demo(music!)</option>
+  <option value="valley.zip">(King's)Valley</option>
+  <option value="digger.zip">Digger</option>
+  <option value="navvy.zip">Navvy(digger)</option>
+  <option value="soldat.zip">Soldat(music!)</option>
+  <option value="meloman.zip">Meloman(music!)</option>
+  <option value="pifpaf.zip">Pif-paf</option>
+  <option value="desantnik2.zip">Desantnik2(gonki)</option>
+  <option value="kingdom.zip">Korolevstvo</option>
+  <option value="pango.zip">Pango</option>
+  <option value="africa.zip">Africa</option>
+  <option value="pentis.zip">Pentis(Tetris)</option>
+  <option value="leopold.zip">Leopold</option>
+  <option value="f15.zip">F-15</option>
+  <option value="toorun.zip">TooRun</option>
+  <option value="circler.zip">Circler</option>
+  <option value="bolder.zip">Bolder Dash</option>
+  <option value="popcorn.zip">Popc(arkanoid)</option>
+  <option value="loderun.zip">Lode Runner</option>
+  <option value="klad4.zip">Klad4</option>
+  <option value="turnir.zip">Turnir</option>
+  <option value="checkers.zip">Checkers</option>
+  <option value="billiard.zip">Billiard</option>
+  <option value="blockout.zip">Block Out</option>
+  <option value="divers.zip">Diversant</option>
+  <option value="fort.zip">Fort</option>
+  <option value="bubbler.zip">Bubbler</option>
+  <option value="horror.zip">Horror1</option>
+  <option value="tarzan.zip">Tarzan</option>
+  <option value="tetris.zip">Tetris</option>
+  <option value="longraid.zip">Long Raid</option>
+  <option value="penguin.zip">Penguin(adv.)courier</option>
+  <option value="raceplay.zip">Raceplay</option>
+  <option value="morf.zip">Demo Morf</option>
+  <option value="savagedemo.zip">DemoSavage</option>
+  <option value="plate.zip">Plate</option>
+  <option value="solomon.zip">Solomon</option>
+  <option value="saturn.zip">Saturn</option>
+  <option value="saranca.zip">Sarancha</option>
+  <option value="othello.zip">Othello(Reversi)</option>
+  <option value="columns2.zip">Columns(Tetris)</option>
+  <option value="frogling.zip">Frogling</option>
+  <option value="plane.zip">Plane</option>
+  <option value="stone.zip">Stone</option>
+  <option value="slalom.zip">Slalom</option>
+  <option value="spion.zip">Spion</option>
+  <option value="vtor.zip">Vtorzenie</option>
+  <option value="space.zip">Space</option>
+  <option value="rally21.zip">Rally(music)</option>
+  <option value="skindive.zip">Skin Diving</option>
+  <option value="bally.zip">Bally</option>
+  <option value="second.zip">Second</option>
+  <option value="dominoes.zip">Dominoes</option>
+  <option value="zoom.zip">Zoom</option>
+  <option value="klaves.zip">Klaves(music)</option>
+  <option value="jetman.zip">Jetman</option>
+  <option value="horace.zip">Horace</option>
+  <option value="brhouse.zip">BreakHouse</option>
+  <option value="paos.zip">Mudak</option>
+  <option value="brball.zip">BrBall</option>
+  <option value="green.zip">Green</option>
+  <option value="way.zip">Way</option>
+  <option value="sopwith.zip">Sopwith</option>
+  <option value="aborig.zip">Aborig</option>
+  <option value="castlemania.zip">CastleMania demo</option>
+ </select>
+ <br><hr>
+ <select id="usergm2" title="Loads disks of games" onchange="userGM2()">
+  <option value="*">+disks</option>  
+ <script type="text/javascript">
+  for(var i=1;i<11;i++)
+	document.write('<option value="GM'+i+'.zip">#'+i+'</option>');
+ </script>
+ </select>..
+
+ <select id="userbasic" title="Loads and starts .COD files"
+	onchange="userBasic()">
+ <option value="*">Basic</option>
+ <option value="testbas.zip">Test</option>
+ <option value="verlet.zip">Verlet</option>
+ <option value="poker1.zip">Poker</option>
+ </select>
+ 
+ </td><td width="2"></td>
+ 
+ <td valign="top">
+ <font size="2">
+  <input type="checkbox" id="toucheson" class="Ckbx"
+	title="Show or Hide big touch buttons" 
+	onclick="Touch_Buttons=!Touch_Buttons;">Touches<br>
+  
+  ..... as <input type="checkbox" id="overjoyst" class="Ckbx"
+	title="Arrow keys, Space, Del to act as Numpads-joystick"
+	onclick="overJoystick^=1;">Joystick<br>
+  
+  <input type="checkbox" id="soundonoff" class="Ckbx"
+	title="Turn sound (on|off)"
+	onclick="soundOn^=1;snd();">Sound... 
+	
+ <select id="soundcard" title="Sound extras" disabled onclick="snd();">
+   <option value="none"></option>	
+   <option value="spk">Speaker</option>
+   <option value="8910mx">AY8910 mix</option>
+   <option value="8910c3">- 3channels</option>
+   <option value="8910ps">- 3ch.+wait</option>
+   <option value="cvx">Covox</option>
+ </select>
+
+      
+ </font></td>
+ </tr>
+ </table>
+ 
+ <table><tr><td width="2"></td><td>
+ <div id="kbvprsd" class="disSel" 
+ style ="position:absolute;left:0px;top:0px;color:red;font-size:28px"></div>
+ <div id="kbimage">
+
+  <script type="text/javascript">
+   var i='<img src="bk_kb.png" ', kbhnt={
+   off:i+'width="1" height="1">',
+   on: i+'width="960" height="380">',
+   cur: false
+   };
+   document.write( kbhnt.cur ? kbhnt.on : kbhnt.off );
+  </script>
+ </div>
+ 
+ </td></tr></table>
+</div>
+
+
+<!--
+ EMULATOR BK-0010.10, BK-0011.M
+ Scripts to be loaded 
+ -->
+<script src="Gbin.js"></script>
+<script src="SYSROMS.js"></script>
+<script src="BKspeed.js"></script>
+<script src="CPUTimer.js"></script>
+<script src="AY8910.js"></script>
+<script src="SoundRenderer.js"></script>
+<script src="Joystick.js"></script>
+<script src="touches.js"></script>
+<script src="BKkeys.js"></script>
+<script src="KeyMapper.js"></script>
+<script src="Keyboard.js"></script>
+<script src="SystemRegs.js"></script>
+<script src="cpu_K1801VM1.js"></script>
+<script src="cpu_Disasm.js"></script>
+<script src="FDDController.js"></script>
+<script src="FloppyDisk.js"></script>
+<script src="BaseBK001x.js"></script>
+<script src="BK_MAIN.js"></script>
+<script src="cheatings.js"></script>
+
+<script type="text/javascript">
+
+var Touch_Buttons = true || (TOUCH_ || MOBILE_);	/* to enable-disable */
+
+function GE(id) { return document.getElementById(id); }
+
+var FullScreen = 0;	// Ctrl+Enter switch to FullScreen mode
+var LOADDSK = [];	// to know disks to load
+
+// prevent selections
+window.oncontextmenu = function(e) {
+e.preventDefault();
+e.stopPropagation();
+return false;
+};
+
+
+//-----------------------
+// The main BK global 
+//-----------------------
+//
+var base = new BaseBK001x();
+var cpu = new K1801VM1();
+
+var bkkeys = new BKkeys();
+var keymap = new KeyMapper();
+var joyMapper = new JoystickMapper();
+
+var fdc = new FDDController();
+
+document.onkeypress = keyact;
+document.onkeydown = keyact;
+document.onkeyup = keyact;
+
+var BK_autokeys = [];	// Auto-play when BIN should be loaded or something
+
+var overJoystick=0;	// use arrow keys or touch buttons as joystick 
+var soundOn=0;		// Sound Off
+
+// also:
+// ...onclick="pushKey(BK_key_code)"
+
+cpu.reset();
+
+function loaded() {
+ var h=GE("kbrd"),v=GE("kbimage"), o=GE("PCaddr"),
+	O=GE("BK_canvas"),q=GE("options"),m=GE("dropfile");
+ if(h==null || v==null || o==null ||
+	O==null || q==null || m==null ) setTimeout('loaded()',999);
+ else
+  {
+	/* see BK_MAIN.js for the Main Loop */
+  FPSinit();
+  touchLoads();
+  
+  v.addEventListener( (TOUCH_ ? "touchstart" : "mousedown"), kbPressed, false);
+  
+  var i = href.indexOf('game=');
+  if(i>0) setTimeout('userGames("'+href.substr(i+5)+'")',2000);
+   
+  }
+}
+
+//----------------
+// User GUI cases
+//----------------
+function userBoot() {
+ switch(GE("userboot").value) {
+ case "B10": base.setBASIC10Model(); cpu.reset(); break;
+ case "RST": cpu.reset(); break;
+ case "RLD": document.location.href = href.split('?')[0]; break;
+ case "F10": base.setFOCAL10Model(); cpu.reset(); break;
+ case "base10": base.setBase10Model(); cpu.reset(); break;
+ case "FDD10": startdisks(0,[],1); break; 
+ case "FDD11": startdisks(1,[],1); break;
+ case "Alx0A330": startdisks(0,["ALEXSOFT.zip"],1); break;
+ case "Alx1A330": startdisks(1,["ALEXSOFT.zip"],1); break;
+ case "CSIMir": startdisks(1,["CSIMIR.zip"],1); sColor(9); break;
+ case "MPage": startdisks(1,["MPAGE1.zip","MPAGE2.zip"],1); sColor(9); break;
+ case "AODOS": startdisks(1,["AODOS.zip"],1); break;
+ case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
+ case "Robcop": startdisks(1,["ROBOCOP.zip"],1); break;
+ case "Revolt": startdisks(1,["MK317.zip","REVOLT.zip"],1); break;
+ case "NORDBK": startdisks(0,["NORDBK10.zip"],1); break;
+ case "POP": startdisks(0,["PRINCE.zip"],1); break;
+ case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); break;
+ case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); break;
+ case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); break;
+ case "BKMna": startdisks(1,["BKMANIA97.zip","BKMANIA96.zip"],1); break;
+ case "AOMD2": startdisks(1,["ALEXSOFT.zip","AOMEDIA2.zip"],1); break;
+ case "AOMD3": startdisks(1,["ALEXSOFT.zip","AOMEDIA3.zip"],1); break;
+ case "Covox": userGames("covox.zip"); soundOn=1; GE("soundcard").value="cvx"; break; 
+ case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); break;
+ case "Cheat": cheatings.cheathelp(); break;
+ }
+ BK_autokeys = [];
+}
+
+function startdisks(isM,zips,rst) {
+	if(isM) base.setFDD11Model();
+	 else base.setFDD10Model();
+	if(zips.length) {
+		if(base.dsks) fdc.shutdown();
+		LOADDSK=zips;GoDisks();
+		}
+	var o = base.FakeTape;
+	o.prep = false; o.filename=""; o.bytes=[];
+	if(rst) cpu.reset();
+}
+
+function sColor(sec) { setTimeout('base.setVideoMode(2)',sec*1000); }
+
+function userColor() {
+ switch(GE("usercolor").value) {
+ case "WB": base.setVideoMode(0); break;
+ case "GR4": base.setVideoMode(1); break;
+ case "COL": base.setVideoMode(2); break;
+ }
+}
+
+ /* cycles x FPS (times per second) */
+function userSpeed() {
+ var S = BK_speed, M=1000000;
+ switch(GE("userspeed").value) {
+ case "4MHz": S.MHz(4*M,0); break;
+ case "an4MHz": S.MHz(4*M,1); break;
+ case "C4M": S.set(240000,20); break;
+ case "3MHz": S.MHz(3*M,0); break;
+ case "an3MHz": S.MHz(3*M,1); break;
+ case "C3M": S.set(180000,20); break;
+ case "CS1": S.set(240000,10); break;
+ case "CS2": S.set(120000,10); break;
+ case "CS3": S.set(24000,30); break;
+ case "CS4": S.set(24000,10); break;
+ case "CS5": S.set(2400,50); break;
+ case "CF1": S.set(300000,20); break;
+ case "CF2": S.set(460000,20); break;
+ case "CF3": S.set(M/2,30); break;
+ case "CF4": S.set(M,10); break;
+
+ }
+ base.soundClear();	// also adjusts sound speed
+}
+
+// or add mouse/touch listeners for canvas
+
+// to read memory dump in array (32768 shorts)
+function read16dump() {
+ for(var dmp=[],addr=0; addr<0x10000; addr+=2) dmp.push(base.readWORD(addr));
+ return dmp;
+}
+
+function userGames(file) {
+	base.setBASIC10Model();
+	cpu.reset();
+	sColor(0);
+	var f = file || GE("usergames").value;
+	if(f.length) Gbin.getUrl("files/"+f);	// read from url, see BK_MAIN.js
+}
+
+
+function GoDisks() {
+	Gbin.getUrl("files/"+LOADDSK[0]);
+}
+
+// load disks
+function userGM2() {
+ var f = GE("usergm2").value;
+ if(f!="*") startdisks(1,[f],1);
+}
+
+// load basic program
+function userBasic() {
+ var f = GE("userbasic").value;
+ if(f!="*") { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
+}
+
+setInterval('userLoop3sec()',3000);	// once per 3seconds
+
+// on each loop update option values
+function userLoop3sec()
+{
+ var Q,m,n,o,s,i;
+ Q = GE("usercolor");
+ if(Q!=null) {
+	m = base.getVideoMode();
+	n = (m==0 ?"WB":(m==1 ?"GR4":"COL"));
+	if(n!=Q.value) Q.value=n;
+ }
+ 
+ Q = GE("overjoyst");
+ if(Q!=null) overJoystick = (Q.checked?1:0);
+
+ Q = GE("soundonoff"); n=(soundOn==1);
+ if(Q!=null) if(n!=Q.value) { Q.checked=n; snd(); }
+ 
+ Q = GE("soundcard");
+ if(Q!=null) {
+	if(!soundOn) { Q.value="none"; snd(); }
+	else if(Q.value=="none") Q.value="spk";
+	n=Q.value;
+	o=(n.substr(0,4)=="8910");
+	m=n.indexOf("ps")>0;
+	base.sounds( o, n.indexOf("mx")>0, m, n=="cvx" );
+	Q.disabled=(soundOn==0);
+	if(m) setTimeout('snd3cn()',1000);
+	}
+ 
+ //var ds = Disasm.disasm(base, cpu.regs[7], true);
+ Q = GE("PCaddr");
+ if(Q!=null) {
+   var pc=cpu.regs[7].toString(8);
+   Q.innerHTML = "PC:"+ ("000000").substr(pc.length)+pc;
+   }
+ 
+ Q = GE("filesloaded");
+ if(Q!=null) {
+	s="";
+	var b1='<FONT COLOR="brown"><b><u>';
+	var b2='<div title="To download" onclick="download(';
+	var b3=')" style="display:inline;cursor:pointer">';
+	var b4='</div><a id="DOWNLOAD';
+	var b5='"></a></u></b></FONT> ';
+	m = base.FakeTape.filename;
+	if(m.length) s+=m+"  ";
+	if(base.dsks) {
+		for(i in fdc.drives) {
+			o=fdc.drives[i];
+			s+=b1+b2+i+b3+"["+o.diskId+"]"+b4+i+b5+o.imageName+"  ";
+			}
+		}
+	if(s.length) Q.innerHTML = s;
+	}
+	
+ Q = GE("toucheson");
+ if(Q!=null) {
+	Q.checked = Touch_Buttons;
+	
+	if(!Touch_Buttons && !FullScreen) {
+	var o=GE("PCaddr"),O=GE("BK_canvas"),q=GE("options"),m=GE("dropfile");
+	var w=O.style,z=m.style;
+	w.width="800px"; w.height="500px";
+	z.width="814px"; z.height="532px";
+	q.style.top = "540px";
+	}
+	
+	touchShow(Touch_Buttons);
+	}
+
+if(FullScreen) {
+ var O=GE("BK_canvas"),S=O.style;
+ S.left="0px";S.top="0px";
+ S.width=''+parseInt(WindoW.width)-16+"px";
+ S.height=''+parseInt(WindoW.height)-16+"px";
+ O.style.zIndex = 8888;
+ kbhnt.cur=true; kbShow();/*turn off*/
+ Touch_Buttons=false;
+ var q=GE("options"); q.innerHTML="";
+ }
+}
+
+function snd() { base.soundClear(); }
+function snd3cn() { GE("soundcard").value="8910c3"; }
+
+function kbShow() {
+ var o = GE("kbrd"), q = GE("kbimage"), m = kbhnt;
+ m.cur = !m.cur;
+ o.value = (m.cur ? "Hide" : "Show") + " keyboard";
+ q.innerHTML = (m.cur ? m.on : m.off);
+}
+
+function download(i) {
+
+    var a = GE("DOWNLOAD"+i), disk = fdc.drives[i];
+    var data = disk.reSized819200();
+    var file = new Blob([data], {type: "text/plain"});
+    a.href = URL.createObjectURL(file);
+
+    a.download = "nw_"+disk.imageName;
+    a.click();
+}
+
+__u = "undefined";
+function __X(o) { return ( typeof(o.clientX)==__u ? o.pageX : o.clientX ); }
+function __Y(o) { return ( typeof(o.clientY)==__u ? o.pageY : o.clientY ); } 
+
+function kbPressed(e)
+{
+ var U = { X:0, Y:0 };
+ if(e.type == 'touchstart' || e.type == 'touchmove' || 
+	e.type == 'touchend' || e.type == 'touchcancel')
+  {
+   var touch = event.touches[0];
+   if(!(typeof(touch)==__u)) { U.X = __X(touch); U.Y = __Y(touch); }
+   else
+    {
+    touch = e.originalEvent.touches[0];
+    if(!(typeof(touch)==__u)) { U.X = __X(touch); U.Y = __Y(touch); }
+    else { U.X = __X(e); U.Y = __Y(e); }
+    }
+  }
+ else if (e.type == 'mousedown' || e.type == 'mouseup' ||
+	e.type == 'mousemove' || e.type == 'mouseover'||
+	e.type=='mouseout' || e.type=='mouseenter' || e.type=='mouseleave')
+  { U.X = __X(e); U.Y = __Y(e); } 
+
+  var rect = GE("kbimage").getBoundingClientRect();
+  U.X-=(rect.left-9); U.Y-=(rect.top-105);
+
+  if(bkkeys.kbpressed(U)) {
+	var Q=GE("kbvprsd");
+	Q.style.left=parseInt(/*rect.left+*/U.X-12)+"px";
+	Q.style.top=parseInt(/*rect.top*/U.Y-32)+"px";
+	Q.innerHTML = '&#9773';
+	setTimeout('clrKbv()',300);
+	}
+}
+
+function clrKbv() { GE("kbvprsd").innerHTML=""; }
+
+function preventaction( ev )
+{
+if(ev.preventDefault)
+ {
+ //if(ev.stopPropagation) ev.stopPropagation();
+ ev.preventDefault();
+ }
+else ev.returnvalue = false;
+return false;
+}
+
+
+</script>
+
+
+</body>
+</html>
