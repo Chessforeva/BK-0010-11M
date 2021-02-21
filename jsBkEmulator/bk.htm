@@ -47,7 +47,7 @@ WindoW = { width: window.innerWidth ||
 
 <!-- Canvas BK_canvas -->
 <div class="disSel" id="dropfile" style="position:absolute;left:0px;top:0px;
-	width:674px;height:432px;
+	width:674px;height:512px;
         border: 2px dashed #333333; border-radius: 5px;
         text-align: center; font: 12pt bold; color: black;"
 >
@@ -56,12 +56,12 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
 </div>
 
 <canvas id="BK_canvas" width="512px" height="256px" class="disSel"
- style ="position:absolute;left:6px;top:20px;width:660px;height:400px;">
+ style ="position:absolute;left:6px;top:20px;width:660px;height:480px;">
 </canvas>
 </div>
 
 <!-- User GUI options -->
-<div id="options" class="disSel" style ="position:absolute;left:0px;top:440px;">
+<div id="options" class="disSel" style ="position:absolute;left:0px;top:520px;">
  <table><tr>
  
  <td valign="top">
@@ -530,9 +530,9 @@ function userLoop3sec()
 	if(!Touch_Buttons && !FullScreen) {
 	var o=GE("PCaddr"),O=GE("BK_canvas"),q=GE("options"),m=GE("dropfile");
 	var w=O.style,z=m.style;
-	w.width="800px"; w.height="500px";
-	z.width="814px"; z.height="532px";
-	q.style.top = "540px";
+	w.width="800px"; w.height="582px";
+	z.width="814px"; z.height="614px";
+	q.style.top = "620px";
 	}
 	
 	touchShow(Touch_Buttons);
