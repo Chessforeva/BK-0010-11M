@@ -72,9 +72,6 @@ BaseBK001x = function()
   var CS,CX,gDATA,Px=[],Bf=[];
   var Cmap,Base,Limit;
   
-  var cyclooped = 0;	// counters
-  var cyclast = 0;
-  
   this.FakeTape = { prep:false /* is ready to load*/, filename:"", bytes:[] };
   this.dsks = false;
   
@@ -84,8 +81,6 @@ BaseBK001x = function()
 	      
   this.minimizeCycles = function()
   {
-   cyclooped = (cpu.Cycles-cyclast);
-  
    timer.updateTimer();
    if(srend.On) srend.updateTimer();
    if(self.dsks) fdc.updateTimer();
@@ -95,8 +90,6 @@ BaseBK001x = function()
    timer.cycles-=n;
    if(srend.On) srend.cycles-=n;
    if(self.dsks) fdc.mCyc(n);
-	
-   cyclast = cpu.Cycles;
   }
   
   function loadtomem(addr,romarr,skip)
