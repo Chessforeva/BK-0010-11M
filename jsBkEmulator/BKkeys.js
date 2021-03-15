@@ -8,7 +8,7 @@ BKkeys = function()
  this.keymap = [];
  
  this.vkb = [];		// virtual keyboard mapping
- var AP2 = false;
+ var AP2 = false;	// 
  
  function d(cd)
  {
@@ -17,7 +17,7 @@ BKkeys = function()
     self.keymap[cd] = {
     bk_lat_lcase:0, bk_lat_ucase:0,	// Lat 
     bk_rus_lcase:0, bk_rus_ucase:0,	// Rus
-    bk_ap2:0	// AP2+key pressed
+    bk_ap2:0	// AP2+key pressed (ар2)
     };
    }
    return self.keymap[cd];
@@ -126,9 +126,9 @@ if(navigator.userAgent.indexOf("Firefox") >= 0)
   
   var i;
   /* latin*/
-  for(i=65;i<90;i++) lat(i,i+32,i);
+  for(i=65;i<91;i++) lat(i,i+32,i);
   /* cyrillic*/
-  for(i=0;i<32;i++) rus(m[i],64+i,96+i);
+  for(i=0;i<32;i++) rus(m[i],64+i,96+i);	// 32 not 33, BK without "ё"
   
  }
 
@@ -156,7 +156,7 @@ if(navigator.userAgent.indexOf("Firefox") >= 0)
  
  /* VIRTUAL KEYBOARD */
 
- function vkbinit() {
+ function vkbinit() {	// fixed prepared for jpg
 	var P=[6,10,88,64,5,-63,86,63,5,-65,86,63,9,-63,84,62,7,
 	-63,86,63,10,-64,82,65,8,-66,83,63,13,-63,80,65,10,-65,97,63,13,
 	-63,95,62,-947,5,57,58,5,-62,56,64,5,-61,57,61,4,-62,57,61,6,
