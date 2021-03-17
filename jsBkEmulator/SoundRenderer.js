@@ -2,6 +2,8 @@
 SoundRenderer = function()
 {
   var self = this;
+  
+  this.allowClear = true;		// can set not to clear buffer frequently
 
   var /*int*/xCPS = 0;
   var synth = null;
@@ -69,56 +71,74 @@ SoundRenderer = function()
 
   this.clear = function(a) {
 	if(a) clear2();
-	else Bclr++;		// now will wait for silence and then clear
+	else {
+		if(self.allowClear || B.length&0x100000) Bclr++;		// now will wait for silence and then clear
+		}
   }
 	//~every .0232s 
   function onAudio(e) {
-  
-    var p = Bpos;
+  	
+    var p = Bpos, O, O2, c12 = (Chan==1);
     for(var C=0; C<Chan; C++) {
 	
-	var O = e.outputBuffer.getChannelData(C);
+	O = e.outputBuffer.getChannelData(C);
+	
+	// if one channel, then the second is copied
+	if(c12) O2=e.outputBuffer.getChannelData(1);		// if speaker, then write on both the same
+	
 	var j=0, Sz = O.length, L = B.length;
 	
 	if(self.initpause)
 	{
 	 self.initpause--;
-	 while(j<Sz) O[j++]=0;
+	 while(j<Sz) {
+		if(c12) O2[j]=0;
+		O[j++]=0;
+		}
 	}
 	else
 	{
 	 p = Bpos;
 	 
-	 if(Chan==1) {
-	   while(j<Sz && p<L) O[j++]=B[p++]; 
+	 if(c12) {	/* 1 channel */
+	   while(j<Sz && p<L) {
+	    O2[j]=B[p];			// simply copy 2nd from 1st
+		O[j++]=B[p++];
+		}
 	  }
 	 else {	/* 3channels */
 	   while(j<Sz && p<L) O[j++]=B[p++][C];
 	  }
-	
-	 if(C==0) {
-	
-	 var last = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));
-	
+	  
 	 if(j>0) {
 		Bz=0;
-		if(j<Sz && p>1 && !synth.On) Bz=1;
-		}
-		
-	 if(Bz) {
-		Bz = (Bz+1)%1000;		// little lasting sound
-		while(j<Sz) O[j++]=last;
+		if(j<Sz && p>1 /*&& !synth.On*/) Bz=1;
 		}
 
+	  // smooth sound
+	 var last = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));		// the lasting sound cases
+	 if(Bz) {
+				// little lasting sound, if emulator too slow
+		while(j<Sz) {
+			if(c12) O2[j]=last;
+			O[j++]=last;
+			}
+		}
+		
+	 if(C==(Chan-1)) {		// adjust counters and buffers
+		
 	 if(Bclr) {
 		switch(Bclr) {
-		case 1: if(j<Sz) clear2(); break;
-		case 2: if(last==0) clear2(); break;
+		case 1: if(j<Sz) clear2(); break;	// if nothing to play, clear
+		case 2: if(last==0) clear2(); break;	// if last sound is 0, also clear
 		}
 	  }
 	 }
 	
-	 while(j<Sz) O[j++]=0;
+	 while(j<Sz) {			// fill 0s till end
+		if(c12) O2[j]=0;
+		O[j++]=0;
+		}
 	}
 	
 	}	// each channel
@@ -211,13 +231,13 @@ SoundRenderer = function()
   }
   
   /*void*/this.updateBit = function(/*int*/maskedVal) {
-    this.updateTimer();
+    self.updateTimer();
     bitVal = ((maskedVal==0) ? -16/*Off*/ : 16/*On*/);
     val = (bitVal + covoxVal + synthVal);
   }
 
   /*void*/this.updateCovox = function(/*int*/value) {
-    this.updateTimer();
+    self.updateTimer();
     var v = value&255;
     covoxVal = (v&128 ?v-256:v)/2;	//1)phase
   }

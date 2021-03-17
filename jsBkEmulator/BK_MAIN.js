@@ -101,7 +101,7 @@ function FPSloop( onetime )
   }
   }
   
-  if(!onetime) setTimeout('FPSloop()',1000/BK_speed.fps);	// next loop after
+  if(!onetime) setTimeout('FPSloop()',(1000/BK_speed.fps)|0);	// next loop after
 }
 
 Gbin.onGot=function(filename, bytes)

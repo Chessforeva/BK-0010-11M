@@ -36,12 +36,13 @@ BaseBK001x = function()
 
   var /*SoundRenderer*/ srend = new SoundRenderer();
   var /*AY8910*/ synth = new AY8910();
+  var synth_guess = 0;			// 0 - none, 1-speaker, 2 - covox or 8910
   var /*int*/tapeDelay = 0;
   var /*long*/lastTape = 0;
   var /*int*/TAPE_SPEED = 272;
   var /*boolean*/covoxEnabled;
   var /*boolean*/covoxSmart;
-  var /*boolean*/covoxByte;
+  var /*boolean*/covoxByte=false;
   var monoColorRGB = [[0,0,0], [60,60,60],[250,250,250],[130,130,130]];
   var Black=[0,0,0],Blue=[0,0,255],Green=[0,255,0],Red=[255,0,0],Yellow=[255,255,0],
 	Magenta=[255,0,255],Cyan=[0,255,255],White=[255,255,255],DarkRed=[139,0,0],
@@ -368,6 +369,7 @@ BaseBK001x = function()
     if (C == 65484)
     {
       if ((ia & 1) == 0) {
+        synth_guess |= 2;
         if (srend.On) {
           srend.updateTimer();
           if (covoxEnabled) {
@@ -393,6 +395,7 @@ BaseBK001x = function()
     {
       syswritereg = /*(short)*/((syswritereg & 0xFF00) | (data & 0xFF));
       if(srend.On) srend.updateBit(data & 0x40);
+	  synth_guess |= 1;
       return true;
     }
     if (ia == 65487)
@@ -833,7 +836,11 @@ BaseBK001x = function()
 	else if(!soundOn || (!synthOn) || covoxOn) srend.initpause = 0;
 	self.setCovoxMode( covoxOn?1:0 );
 	}
-
+  this.sound_clear_allow = function(yn) {
+	srend.allowClear = yn;
+    }
+  this.getSoundGuess = function() { return synth_guess; }
+  
   init();
   
   memLoads0();

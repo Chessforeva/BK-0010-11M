@@ -39,6 +39,7 @@ BKspeed = function()
 	self.mhz = 0;	/* No MHz counting */
 	self.anim = 0;
 	clr();
+	base.sound_clear_allow(false);
 	}
 	
 		/* automatic adjusting to 4MHz,3MHz */
@@ -53,6 +54,7 @@ BKspeed = function()
 			self.cyc *=100/62;
 			}
 	clr();
+	base.sound_clear_allow(true);
 	}
 	
   this.count = function() {

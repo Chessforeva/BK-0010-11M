@@ -12,7 +12,7 @@
 <!--
 BK-0010-01, BK-0011M emulator HTML5 javascript
 
-version 1.e (04.2020)
+version 1.f (03.2021)
 freeware for deployment on any server
 
 Эмулятор БК-0010-01, БК-0011M
@@ -113,20 +113,25 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="4MHz">~4Mhz</option>
   <option value="an4MHz">anim.4Mhz</option>
   <option value="C4M">cyc240K x20</option>
-  <option value="">--slower--</option>
+  <option value="">...slower...</option>
   <option value="3MHz">~3Mhz</option>
   <option value="an3MHz">anim.3Mhz</option>
   <option value="C3M">cyc180K x20</option>
   <option value="CS1">240K x10</option>
   <option value="CS2">120K x10</option>
-  <option value="CS3">24K x30</option>
-  <option value="CS4">24K x10</option>
-  <option value="CY5">2400 x50</option>
-  <option value="">++faster++</option>
+  <option value="CS3">64K x60</option>
+  <option value="CS4">24K x30</option>
+  <option value="CS5">24K x10</option>
+  <option value="">...faster...</option>
   <option value="CF1">300K x20</option>  
   <option value="CF2">460K x30</option>
-  <option value="CF3">500K x30</option>
-  <option value="CF4">1M x10</option>
+  <option value="CF3">200K x80</option>
+  <option value="CF4">200K x160</option>
+  <option value="">..fps fast..</option>
+  <option value="C50K4">50K per 4ms</option>  
+  <option value="C100K4">100K 4ms</option>
+  <option value="C200K4">200K 4ms</option>
+  <option value="C500K4">500K 4ms</option>
  </select></td>	<td width="2"></td>
  
  <td valign="top">
@@ -237,7 +242,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
    <option value="spk">Speaker</option>
    <option value="8910mx">AY8910 mix</option>
    <option value="8910c3">- 3channels</option>
-   <option value="8910ps">- 3ch.+wait</option>
+<!--  <option value="8910ps">- 3ch.+wait</option>  -->
    <option value="cvx">Covox</option>
  </select>
 
@@ -421,14 +426,17 @@ function userSpeed() {
  case "C3M": S.set(180000,20); break;
  case "CS1": S.set(240000,10); break;
  case "CS2": S.set(120000,10); break;
- case "CS3": S.set(24000,30); break;
- case "CS4": S.set(24000,10); break;
- case "CS5": S.set(2400,50); break;
+ case "CS3": S.set(64000,60); break;
+ case "CS4": S.set(24000,30); break;
+ case "CS5": S.set(24000,10); break;
  case "CF1": S.set(300000,20); break;
- case "CF2": S.set(460000,20); break;
- case "CF3": S.set(M/2,30); break;
- case "CF4": S.set(M,10); break;
-
+ case "CF2": S.set(460000,30); break;
+ case "CF3": S.set(200000,80); break;
+ case "CF4": S.set(200000,160); break;
+ case "C50K4": S.set(50000,250); break;
+ case "C100K4": S.set(100000,250); break;
+ case "C200K4": S.set(200000,250); break;
+ case "C500K4": S.set(500000,250); break;
  }
  base.soundClear();	// also adjusts sound speed
 }
@@ -471,7 +479,7 @@ setInterval('userLoop3sec()',3000);	// once per 3seconds
 // on each loop update option values
 function userLoop3sec()
 {
- var Q,m,n,o,s,i;
+ var Q,m,n,o,s,i,v, g;
  Q = GE("usercolor");
  if(Q!=null) {
 	m = base.getVideoMode();
@@ -488,13 +496,19 @@ function userLoop3sec()
  Q = GE("soundcard");
  if(Q!=null) {
 	if(!soundOn) { Q.value="none"; snd(); }
-	else if(Q.value=="none") Q.value="spk";
+	else if(Q.value=="none") {
+		g = base.getSoundGuess();
+		v="spk";
+		if(g&2) v="8910c3";
+		if(g&4) v="cvx";	// don't know it
+		Q.value= v;
+		}
 	n=Q.value;
 	o=(n.substr(0,4)=="8910");
 	m=n.indexOf("ps")>0;
 	base.sounds( o, n.indexOf("mx")>0, m, n=="cvx" );
 	Q.disabled=(soundOn==0);
-	if(m) setTimeout('snd3cn()',1000);
+	if(m) setTimeout('snd3cn()',1000);		// too smart
 	}
  
  //var ds = Disasm.disasm(base, cpu.regs[7], true);
