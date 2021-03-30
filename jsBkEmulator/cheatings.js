@@ -64,7 +64,7 @@ cheatings = new function(){
  if(n=="CIRCLER.BIN") base.writeWord(8066,8); // set always = 8
  if(n=="BOLDER.BIN") base.writeWord(2120,100); // set always = 3
  if(n=="LODERUN.BIN") base.writeWord(1006,10); // set always = 3
- if(n=="KLAD4.BIN") base.writeWord(7966,7); // set always = 7
+ if(n=="KLADJ.BIN") base.writeWord(7966,7); // set always = 7
  if(n=="TARZAN.BIN") base.writeWord(1006,5); // set always = 5
  if(n=="JETMAN.BIN") base.writeWord(4240,9); // set always = 9
  if(n=="F15.BIN") base.writeWord(844,8); // set always = 8
