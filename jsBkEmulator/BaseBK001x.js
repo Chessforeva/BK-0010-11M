@@ -70,6 +70,8 @@ BaseBK001x = function()
   var modePaletteMaps = [];
   var /*QBusReadDTO*/ readDTO = QBusReadDTO(-1);
   
+  var HDret = { data:0 };		// word of returned data
+  
   var CS,CX,gDATA,Px=[],Bf=[];
   var Cmap,Base,Limit;
   
@@ -100,9 +102,14 @@ BaseBK001x = function()
   }
   
   // Address for Basic,Focal,MSTD ROM 
-  function load120000(a)
-  {
-  loadtomem(69632,a,0);
+  function load120000(a) { loadtomem(69632,a,0); }
+  
+  function load160000(a) { loadtomem(102400,a,0); }		//4KB disk hE000 @#160000
+  
+  function load000000(a) { loadtomem(0,a,0); }			//can overwrite memory
+  
+  this.loadDisksRom = function(a) {
+	load160000(a);
   }
   
   function init()
@@ -239,11 +246,8 @@ BaseBK001x = function()
     scrdefs();
     self.addFloppies();
   }
-
   
-
-  
-  /*void*/this.setFDD11Model = function() {
+  function set11Model() {
     memLoads0();
     is11M = true;
     var m = mmap, r = mmap_readable, w = mmap_writeable;  
@@ -253,15 +257,20 @@ BaseBK001x = function()
     w[4] = false; w[5] = false; w[6] = false; w[7] = false;
     rom160length = 4096;
     scrdefs();
-    self.addFloppies();
+
   }
 
+  /*void*/this.setFDD11Model = function() {
+    set11Model();
+    self.addFloppies();
+  }
+  
   /*boolean*/this.readWord = function(/*int*/addr, /*QBusReadDTO*/ result)
   {
     var /*int*/ia = addr & 65535;
     var /*int*/page = ia >>> 13;
     var /*int*/mapped = mmap[page] + ((ia & 0x1FFF) >>> 1);
-
+		
     if (page < 7)
     {
       if (mmap_readable[page] != 0) {
@@ -276,7 +285,7 @@ BaseBK001x = function()
       var plugin = plugins[pli];
       var base = plugin.getBaseAddress();
       if (base <= ia) {
-        if ((ia - base) / 2 < plugin.getNumWords())
+        if (((ia - base) >>>1) < plugin.getNumWords())
           return plugin.readWord(addr, result);
       }
     }
@@ -437,7 +446,7 @@ BaseBK001x = function()
     var /*int*/page = ia >>> 13;
     var /*int*/mapped = mmap[page] + ((ia & 0x1FFF) >>> 1);
     var d = data&0xFFFF>>>0;
-    
+		
     updatepixel(mapped, d);
 	 
     if (page < 7)
@@ -463,7 +472,7 @@ BaseBK001x = function()
       var plugin = plugins[pli];    
       var base = plugin.getBaseAddress();
       if (base <= ia) {
-        if ((ia - base) / 2 < plugin.getNumWords())
+        if (((ia - base) >>>1) < plugin.getNumWords())
         {
           return plugin.writeWord(addr, d);
         }
@@ -798,10 +807,25 @@ BaseBK001x = function()
   */
   
   this.loadROM = function(name, data) {
-   var i,j=0,a = new Uint16Array(data.length/2);
+   var i,j=0, L = data.length, a = new Uint16Array(L>>1);
    for(i in a) a[i]=data[j++]+(data[j++]<<8);
-   set10Model();
-   load120000(a);
+   
+   if(L<5000) {	// 4Kb?
+	// disk controller rom
+	//set11Model();			// 11m
+	load160000(a);
+	}
+	else if (L<9000) {	// 8Kb?
+		// basic, focal
+	set10Model();			// 10
+	load120000(a);
+	}
+    else {	// larger 8Kb
+	 //load at 0 everything
+	set11Model();			// set 11m
+	load000000(a);
+	}
+
    return;
   }
  

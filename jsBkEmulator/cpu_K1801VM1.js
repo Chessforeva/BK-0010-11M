@@ -53,7 +53,7 @@ K1801VM1 = function()
   /*void*/function dbgRegs() {
 	var s ="",i;
 	for(i=0;i<8;i++) s+=Disasm.regnames[i]+'='+r[i].toString(8)+" ";
-	s+="PSW = "+pswstr(psw);
+	s+="PSW = "+self.pswstr();
 	note(s);
   }
   
@@ -85,10 +85,11 @@ K1801VM1 = function()
     console.log(what);
   }
   
-  function pswstr(n)
+  this.pswstr = function()
   {
    var s="";
    for(i=0;i<8;i++) s+=(psw&(1<<i) ? flagLst[i] : "-");
+   if(((psw&255)>>>0)!=psw) s+='?'; 
    return s;
   }
   
@@ -888,7 +889,7 @@ K1801VM1 = function()
             if (trace)
               note("New PC is " + 
                 r[7].toString(8) + 
-                ", PSW is " + pswstr(psw));
+                ", PSW is " + self.pswstr());
             state = CPUState.NORMAL;
             return;
           }

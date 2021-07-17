@@ -12,7 +12,7 @@
 <!--
 BK-0010-01, BK-0011M emulator HTML5 javascript
 
-version 1.g (03.2021)
+version 1.h (07.2021 , added debug mode on F11)
 freeware for deployment on any server
 
 Эмулятор БК-0010-01, БК-0011M
@@ -32,6 +32,7 @@ Btw,16 bit CPU!
 outline: 0;
 }
 .Ckbx { width: 20px; height: 20px; }
+.dbg0 { font-family: Courier; font-size:14px }
 </style>
 
 <script type="text/javascript">
@@ -71,6 +72,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="B10">BK0010 + Basic ROM</option>
   <option value="RST">Reset restart (F12)</option>  
   <option value="RLD">Reload clear all </option>
+  <option value="DBG">Debug (F11)</option>
   <option value="F10">BK0010 + Focal ROM</option>
   <!--<option value="base10">BK0010 monitor only</option>-->
   <option value="FDD10">BK0010+FDD  and drop ...</option>
@@ -90,6 +92,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="MzRz">MusicRelease demo</option>
   <option value="Insl">Insult music demo</option>
   <option value="BKMna">BK-Mania 97,96 A:B:</option>
+  <option value="RayDreams">RayDreams music</option>
   <option value="AOMD2">Media disk#1 in B:</option>
   <option value="AOMD3">Media disk#2 in B:</option>
   <option value="Covox">Covox sound drill,ugh...</option>
@@ -294,6 +297,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
 <script src="cpu_Disasm.js"></script>
 <script src="FDDController.js"></script>
 <script src="FloppyDisk.js"></script>
+<script src="DBG.js"></script>
 <script src="BaseBK001x.js"></script>
 <script src="BK_MAIN.js"></script>
 <script src="cheatings.js"></script>
@@ -319,6 +323,8 @@ return false;
 // The main BK global 
 //-----------------------
 //
+var dbg = new DBG();
+
 var base = new BaseBK001x();
 var cpu = new K1801VM1();
 
@@ -344,11 +350,14 @@ cpu.reset();
 
 function loaded() {
  var h=GE("kbrd"),v=GE("kbimage"), o=GE("PCaddr"),
-	O=GE("BK_canvas"),q=GE("options"),m=GE("dropfile");
+	O=GE("BK_canvas"),q=GE("options"),m=GE("dropfile"), Z=GE("debug_div");
  if(h==null || v==null || o==null ||
-	O==null || q==null || m==null ) setTimeout('loaded()',999);
+	O==null || q==null || m==null || Z==null) setTimeout('loaded()',999);
  else
   {
+  
+  dbg.init("debug_div");	// create debug window (hidden)
+  
 	/* see BK_MAIN.js for the Main Loop */
   FPSinit();
   touchLoads();
@@ -388,10 +397,12 @@ function userBoot() {
  case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); break;
  case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); break;
  case "BKMna": startdisks(1,["BKMANIA97.zip","BKMANIA96.zip"],1); break;
+ case "RayDreams": startdisks(1,["raydreams.zip"],1); break;
  case "AOMD2": startdisks(1,["ALEXSOFT.zip","AOMEDIA2.zip"],1); break;
  case "AOMD3": startdisks(1,["ALEXSOFT.zip","AOMEDIA3.zip"],1); break;
  case "Covox": userGames("covox.zip"); soundOn=1; GE("soundcard").value="cvx"; break; 
  case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); break;
+ case "DBG": dbg.show(); break;
  case "Cheat": cheatings.cheathelp(); break;
  }
  BK_autokeys = [];
@@ -504,7 +515,14 @@ if(FullScreen) {
  FullScreen=2;
  }
 }
- 
+
+ if(dbg.active) {
+	O = GE("debug_div");
+	if(O!=null) {
+		O.style.zIndex = 9000;
+	}
+   }
+
  Q = GE("usercolor");
  if(Q!=null) {
 	m = base.getVideoMode();
@@ -680,6 +698,7 @@ function closeFullscreen() {
 
 </script>
 
+<div id="debug_div" style="position:absolute;left:30;top:300;width:900;height:350;visibility:hidden;background-color:white"></div>
 
 </body>
 </html>

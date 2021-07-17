@@ -248,7 +248,7 @@ Disasm = {
     }
     var /*int*/len = 1;
 
-    for (var /*int*/i = 0; i < A[op].length(); ++i)
+    for (var /*int*/i = 0; i < A[op].length; ++i)
     {
       var /*char*/ c = A[op].charAt(i);
 

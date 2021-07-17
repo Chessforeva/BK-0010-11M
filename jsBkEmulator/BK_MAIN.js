@@ -56,6 +56,8 @@ function FPSinit()
 //--------------------
 function FPSloop( onetime )
 {
+ if(!dbg.active) {
+
   if( onetime || !BK_speed.anim) {
   
   if( !(base.dsks && fdc.drives.length==0) )	// are we waiting for disk drop?
@@ -69,7 +71,14 @@ function FPSloop( onetime )
   while(cpu.Cycles<to)
 	{
 	cpu.exec_insn();
+	if(dbg.bp && (dbg.step || dbg.breakpoints()) ) {
+		dbg.bp = 0;		// returning from breakpoint
+		dbg.step = 0;
+		dbg.show();
+		break;
+		}
 	if(base.FakeTape.prep) base.TapeBinLoader();
+
 	}
 	
   base.sound_push(); // sounds
@@ -97,18 +106,21 @@ function FPSloop( onetime )
       
   base.updCanvas();	// little faster ;)
   //base.DRAW();
-  
   }
   }
   
-  if(!onetime) setTimeout('FPSloop()',(1000/BK_speed.fps)|0);	// next loop after
+ }
+ 
+ if(!onetime) setTimeout('FPSloop()',(1000/BK_speed.fps)|0);	// next loop after
+  
 }
 
 Gbin.onGot=function(filename, bytes)
 	{
 	var f = filename.toUpperCase();
 	if(f.indexOf(".ROM")>0) {
-		cpu.reset();base.loadROM(bytes);
+		//cpu.reset();
+		base.loadROM(filename, bytes);
 		}
 	if(f.indexOf(".BIN")>0) {
 		cpu.reset();
@@ -141,6 +153,18 @@ Gbin.onGot=function(filename, bytes)
 
 function keyact(e){
 
+var kwas=0;		// to prevent default browser action
+
+if(e.type=="keydown") {
+ if(e.keyCode==121 && dbg.active) { dbg.Run(); kwas=1; }
+ if(e.keyCode==118 && dbg.active) { dbg.Step(); kwas=1; }
+ if(e.keyCode==119 && dbg.active) { dbg.StepOver(); kwas=1; }
+ if(e.keyCode==122 && !dbg.active) { dbg.show(); kwas=1; }
+}
+
+if(!kwas) {
+
+
 if(overJoystick)	// when arrows,enter,space, touch buttons are pressed
 	{
 	e.keycode = e.which = joyMapper.keysubstit(e.keyCode || e.which);
@@ -153,8 +177,14 @@ if(e.type=="keydown") {
  if(e.keyCode==76 && e.ctrlKey) cheatings.livesfinder();
  if(e.keyCode==13 && (e.altKey || e.ctrlKey)) FullScreen=1;
 }
+
+}
+
+if(!dbg.active || kwas==1) {			// needed for small input in debug
+
 e.preventDefault();
 e.stopPropagation();
+}
 
 }
 
