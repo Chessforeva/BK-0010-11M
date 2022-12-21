@@ -12,17 +12,20 @@
 <!--
 BK-0010-01, BK-0011M emulator HTML5 javascript
 
-version 1.h (07.2021 , added debug mode on F11)
+version 1.i
+(07.2021 , added debug mode on F11
+ 12.2022 , small bugfix for sound)
 freeware for deployment on any server
 
 Эмулятор БК-0010-01, БК-0011M
   исходняк: java BK2010 очень хороший с классами и минимальный
   
   NO TAPE. Standard FLOPPY DISKS.
-  Poor sounds: Speaker, Covox and AY8910 (mixed or 3 channels).
+  Speaker, Covox and AY8910 (mixed or 3 channels).
 
 BK was the most popular Soviet home computer during 80s-90s,
 Btw,16 bit CPU!
+
 -->
 
 <style>
@@ -125,7 +128,9 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="C3M">cyc180K x20</option>
   <option value="CS1">240K x10</option>
   <option value="CS2">120K x10</option>
-  <option value="CS3">64K x60</option>
+  <option value="CS3a">64K x60</option>
+  <option value="CS3b">64K x80</option>
+  <option value="CS3c">32K x100</option>
   <option value="CS4">24K x30</option>
   <option value="CS5">24K x10</option>
   <option value="">...faster...</option>
@@ -242,7 +247,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   
   <input type="checkbox" id="soundonoff" class="Ckbx"
 	title="Turn sound (on|off)"
-	onclick="soundOn^=1;snd();">Sound... 
+	onclick="soundOn^=1;snd();snd_mode();">Sound... 
 	
  <select id="soundcard" title="Sound extras" disabled onclick="snd();">
    <option value="none"></option>	
@@ -400,7 +405,7 @@ function userBoot() {
  case "RayDreams": startdisks(1,["raydreams.zip"],1); break;
  case "AOMD2": startdisks(1,["ALEXSOFT.zip","AOMEDIA2.zip"],1); break;
  case "AOMD3": startdisks(1,["ALEXSOFT.zip","AOMEDIA3.zip"],1); break;
- case "Covox": userGames("covox.zip"); soundOn=1; GE("soundcard").value="cvx"; break; 
+ case "Covox": userGames("covox.zip"); soundOn=1; snd_mode(); GE("soundcard").value="cvx"; break; 
  case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); break;
  case "DBG": dbg.show(); break;
  case "Cheat": cheatings.cheathelp(); break;
@@ -442,7 +447,9 @@ function userSpeed() {
  case "C3M": S.set(180000,20); break;
  case "CS1": S.set(240000,10); break;
  case "CS2": S.set(120000,10); break;
- case "CS3": S.set(64000,60); break;
+ case "CS3a": S.set(64000,60); break;
+ case "CS3b": S.set(64000,80); break;
+ case "CS3c": S.set(32000,100); break;
  case "CS4": S.set(24000,30); break;
  case "CS5": S.set(24000,10); break;
  case "CF1": S.set(300000,20); break;
@@ -534,7 +541,9 @@ if(FullScreen) {
  if(Q!=null) overJoystick = (Q.checked?1:0);
 
  Q = GE("soundonoff"); n=(soundOn==1);
- if(Q!=null) if(n!=Q.value) { Q.checked=n; snd(); }
+ if(Q!=null) if(n!=Q.checked) { 
+	Q.checked=(n==1); snd();
+	}
  
  Q = GE("soundcard");
  if(Q!=null) {
@@ -602,6 +611,15 @@ if(FullScreen) {
 
 
 function snd() { base.soundClear(); }
+function snd_mode() {
+	if(soundOn) {
+		var sp = GE("userspeed").value;
+		if( sp.substr(1,3)=="MHz" ) {
+			GE("userspeed").value="an"+sp;
+			userSpeed();
+			}
+		}
+ }
 function snd3cn() { GE("soundcard").value="8910c3"; }
 
 function kbShow() {

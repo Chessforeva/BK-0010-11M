@@ -72,7 +72,16 @@ SoundRenderer = function()
   this.clear = function(a) {
 	if(a) clear2();
 	else {
-		if(self.allowClear || B.length&0x100000) Bclr++;		// now will wait for silence and then clear
+		if(self.allowClear) Bclr++;	// now will wait for silence and then clear
+		else {
+			if(B.length&0x100000) {
+				var r = Bpos-10240;
+				if(r>0) {
+					B.splice(0,r);
+					Bpos-=r;
+					}
+			 }
+			}
 		}
   }
 	//~every .0232s 
