@@ -82,15 +82,18 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <!--<option value="base10">BK0010 monitor only</option>-->
   <option value="FDD10">BK0010+FDD  and drop ...</option>
   <option value="FDD11">BK0011M+FDD ...a file</option>
-  <option value="Alx0A330">Alex(BK10 DBASIC FDD)</option>
+  <option value="Alx0A330">Alex(BK10 DBASIC FDD find)</option>
   <option value="Alx1A330">AlexANDOS330(BK11)</option>
   <option value="CSIMir">CSI-DOS 3.32 MIR MUSIC</option>
   <option value="MPage">CSI-DOS A:B:samples</option>
-  <option value="AODOS">AODOS 2.10 +chess</option>
+  <option value="AODOS">AODOS 2.10 chess</option>
   <option value="MKDOS">MKDOS 2.10</option>
-  <option value="Robcop">BASIC BK11 +Robocop A:</option>
+  <option value="Robcop">MKDOS 3.15 +Robocop A:</option>
   <option value="Revolt">MKDOS 3.17 +Revolt A:B:</option>
   <option value="NORDBK">Nord OS 2.11 (BK10)</option>
+  <option value="ANDOS33a">ANDOS only (BK11)</option>
+  <option value="ANDOS33b">ANDOS empty (BK11)</option>
+  <option value="CVXS">ANDOS Covox demos</option>
   <option value="POP">Prince Of Persia game</option>
   <option value="MiCo">Miami Cobra racing</option>
   <option value="Mega">MegaDemo +music</option>
@@ -400,6 +403,9 @@ function userBoot() {
  case "Robcop": startdisks(1,["ROBOCOP.zip"],1); break;
  case "Revolt": startdisks(1,["MK317.zip","REVOLT.zip"],1); break;
  case "NORDBK": startdisks(0,["NORDBK10.zip"],1); break;
+ case "ANDOS33a": startdisks(1,["SYSEMPTY.zip"],1); break;
+ case "ANDOS33b": startdisks(1,["EMPTY.zip"],1); break;
+ case "CVXS": startdisks(1,["covoxs.zip"],1); break; 
  case "POP": startdisks(0,["PRINCE.zip"],1); break;
  case "MiCo": startdisks(1,["MK317.zip","MIAMI.zip"],1); break; 
  case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); break;
