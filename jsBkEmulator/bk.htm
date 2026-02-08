@@ -84,7 +84,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="FDD11">BK0011M+FDD ...a file</option>
   <option value="Alx0A330">Alex(BK10 DBASIC FDD)</option>
   <option value="Alx1A330">AlexANDOS330(BK11)</option>
-  <option value="CSIMir">CSI-DOS 3.32 mir music</option>
+  <option value="CSIMir">CSI-DOS 3.32 MIR MUSIC</option>
   <option value="MPage">CSI-DOS A:B:samples</option>
   <option value="AODOS">AODOS 2.10 +chess</option>
   <option value="MKDOS">MKDOS 2.10</option>
@@ -529,11 +529,16 @@ if(FullScreen) {
  _s4fs.cT = S.top;
  _s4fs.cW = S.width;
  _s4fs.cH = S.height;
- _s4fs.zI = S.zIndex;
- _s4fs.zI = W.style.overflow;
+ _s4fs.czI = S.zIndex;
+ _s4fs.W = W.style.overflow;
  _s4fs.TB = Touch_Buttons;
- _s4fs.ophtm = q.innerHTML;
- _s4fs.ophtm.kbh = kbhnt.cur;
+ _s4fs.kbh = kbhnt.cur;
+ _s4fs.opthtm = q.innerHTML;
+ _s4fs.usercolor = GE("usercolor").value;
+ _s4fs.userspeed = GE("userspeed").value;
+ _s4fs.usergames = GE("usergames").value;
+ _s4fs.usergm2 = GE("usergm2").value;
+ _s4fs.userbasic = GE("userbasic").value;
  
  S.left="-2px"; S.top="-2px";
  S.width=''+parseInt(WindoW.width+4)+"px";
@@ -559,6 +564,13 @@ if(FullScreen) {
 	FullScreen=4;
 	var Q=GE("back_butt");
 	Q.checked=0;
+	
+	var O=GE("BK_canvas"),S=O.style;
+	WindoW = winWiHi();
+	S.left="0px"; S.top="0px";
+	S.width=''+parseInt(WindoW.width)+"px";
+	S.height=''+parseInt(WindoW.height)+"px";
+	
  }
  
 if( FullScreen==5 ) {	// Return the main window
@@ -577,11 +589,14 @@ if( FullScreen==5 ) {	// Return the main window
  S.top = _s4fs.cT;
  S.width = _s4fs.cW;
  S.height = _s4fs.cH;
- S.zIndex = _s4fs.zI;
- W.style.overflow = _s4fs.zI;
+ S.zIndex = _s4fs.czI;
+ W.style.overflow = _s4fs.W;
  Touch_Buttons = _s4fs.TB;
- q.innerHTML = _s4fs.ophtm;
- kbhnt.cur = _s4fs.ophtm.kbh;
+ 
+ q.innerHTML = _s4fs.opthtm;
+ setTimeout('_setRetValues()',999);
+ 
+ kbhnt.cur = _s4fs.kbh;
  if(kbhnt.cur) { kbhnt.cur = !kbhnt.cur; kbShow() };	// Turn on
  
  v=GE("kbimage");
@@ -677,7 +692,15 @@ if( FullScreen==5 ) {	// Return the main window
 
 }
 
+function _setRetValues() {
 
+ GE("usercolor").value = _s4fs.usercolor;
+ GE("userspeed").value = _s4fs.userspeed;
+ GE("usergames").value = _s4fs.usergames;
+ GE("usergm2").value = _s4fs.usergm2;
+ GE("userbasic").value = _s4fs.userbasic;
+ 
+}
 
 function snd() { base.soundClear(); }
 function snd_mode() {
