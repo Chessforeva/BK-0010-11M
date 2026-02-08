@@ -567,10 +567,9 @@ if(FullScreen) {
 	
 	var O=GE("BK_canvas"),S=O.style;
 	WindoW = winWiHi();
-	S.left="0px"; S.top="0px";
-	S.width=''+parseInt(WindoW.width)+"px";
-	S.height=''+parseInt(WindoW.height)+"px";
-	
+	S.left="-2px"; S.top="-2px";
+	S.width=''+parseInt(WindoW.width+4)+"px";
+	S.height=''+parseInt(WindoW.height+4)+"px";	
  }
  
 if( FullScreen==5 ) {	// Return the main window
