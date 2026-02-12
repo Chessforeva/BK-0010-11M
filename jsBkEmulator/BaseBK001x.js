@@ -864,12 +864,13 @@ BaseBK001x = function()
 	srend.allowClear = yn;
     }
   this.getSoundGuess = function() { return synth_guess; }
+  this.setDirtyCovox = function() { srend.dirty = true; }
   
   init();
   
   memLoads0();
   
-  self.setCovoxMode(0);	/* No Covox, sounds like a drill on WebAudio */
+  self.setCovoxMode(0);
   self.setBASIC10Model();
   srend.setSynth(synth);
   
