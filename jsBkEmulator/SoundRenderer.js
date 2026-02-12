@@ -1,3 +1,8 @@
+/*
+
+ Sounds adjusted for Chrome 02.2026
+
+*/
 
 SoundRenderer = function()
 {
@@ -220,8 +225,12 @@ SoundRenderer = function()
 			val += c;
 
 			g = val;
+			
+			g /= 10;				// This sounds much better
+	
 			}
 		else {
+	
 			g = synthVal;		// independent 3 channels, may be slow 
 			synthVal=0; val=0;
 			}
@@ -235,6 +244,9 @@ SoundRenderer = function()
 		val += c;
 
 		g = val;
+		
+		g = (g&255)>>>0;
+		g /= 128;				// This sounds much better
 		}
 	else g = (A/xCPS);	// 1 channel
 
@@ -255,8 +267,8 @@ SoundRenderer = function()
 
   /*void*/this.updateCovox = function(/*int*/value) {
     self.updateTimer();
-    var v = value&255;
-    covoxVal = (v&128 ?v-256:v)/2;	//1)phase
+    var v = (value&255)>>>0;
+    covoxVal = v; 				//(v&128 ?v-256:v);
   }
   
   adjustSpeed();
