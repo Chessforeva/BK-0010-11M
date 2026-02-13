@@ -88,6 +88,8 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="CSIMir">CSI-DOS 3.32 MIR MUSIC</option>
   <option value="MPage">CSI-DOS A:B:samples</option>
   <option value="Mega">MegaDemo COVOX MUSIC</option>
+  <option value="Insl">INSULT MUSIC DEMO</option>
+  <option value="Covid">Covid music demo</option>
   <option value="AODOS">AODOS 2.10 chess</option>
   <option value="MKDOS">MKDOS 2.10</option>
   <option value="Robcop">MKDOS 3.15 +Robocop A:</option>
@@ -96,15 +98,15 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="ANDOS33a">ANDOS only (BK11)</option>
   <option value="ANDOS33b">ANDOS empty (BK11)</option>
   <option value="CVXS">ANDOS Covox demos</option>
+  <option value="MzRz">MusicRelease demo</option>
   <option value="POP">Prince Of Persia game</option>
   <option value="MiCo">Miami Cobra racing</option>
-  <option value="MzRz">MusicRelease demo</option>
-  <option value="Insl">Insult music demo</option>
   <option value="BKMna">BK-Mania 97,96 A:B:</option>
-  <option value="RayDreams">RayDreams music</option>
+  <option value="RayDreams">RayDreams music demo</option>
   <option value="AOMD2">Media disk#1 in B:</option>
   <option value="AOMD3">Media disk#2 in B:</option>
   <option value="Covox">Covox laud drill,ugh...</option>
+  <option value="aDSK0">Add B: an empty disk</option>
   <option value="Cheat">How to cheat lives!</option>
   <!--<option value="aDSK0">Add unformatted disk</option>-->
  </select>
@@ -402,6 +404,8 @@ function userBoot() {
  case "CSIMir": startdisks(1,["CSIMIR.zip"],1); sColor(9); sHelper(5,1); sHelper(15,2); break;
  case "MPage": startdisks(1,["MPAGE1.zip","MPAGE2.zip"],1); sColor(9); break;
  case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); sHelper(5,4); sound_sv="cvx"; break;
+ case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); sHelper(5,1); sHelper(24,2); break;
+ case "Covid": startdisks(1,["COVID.zip"],1); sHelper(5,1); sound_sv="8910mx"; break;
  case "AODOS": startdisks(1,["AODOS.zip"],1); break;
  case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
  case "Robcop": startdisks(1,["ROBOCOP.zip"],1); break;
@@ -410,10 +414,9 @@ function userBoot() {
  case "ANDOS33a": startdisks(1,["SYSEMPTY.zip"],1); break;
  case "ANDOS33b": startdisks(1,["EMPTY.zip"],1); break;
  case "CVXS": startdisks(1,["covoxs.zip"],1); sHelper(8,4); sound_sv="cvx"; break; 
+ case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); sHelper(5,1); sound_sv="8910c3"; break;
  case "POP": startdisks(0,["PRINCE.zip"],1); break;
  case "MiCo": startdisks(1,["MK317.zip","MIAMI.zip"],1); break; 
- case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); sHelper(5,1); sound_sv="8910c3"; break;
- case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); sHelper(5,1); sHelper(24,2); break;
  case "BKMna": startdisks(1,["BKMANIA97.zip","BKMANIA96.zip"],1); break;
  case "RayDreams": startdisks(1,["raydreams.zip"],1); sHelper(5,1); sound_sv="8910mx"; break;
  case "AOMD2": startdisks(1,["ALEXSOFT.zip","AOMEDIA2.zip"],1); break;
