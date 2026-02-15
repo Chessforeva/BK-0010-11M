@@ -35,6 +35,9 @@ case 1://BIN binary file
 case 2://COD basic text for interpreter
 	/* cload"m",r\n" */
  BK_autokeys = [ 99,108,111,97,100,34,109,34,44,114,10]; break;
+case 3://COD basic text for interpreter
+	/* csave"m"\n" */
+ BK_autokeys = [ 99,115,97,118,101,34,109,34,10]; break;
  } 
 }
 
@@ -77,7 +80,7 @@ function FPSloop( onetime )
 		dbg.show();
 		break;
 		}
-	if(base.FakeTape.prep) base.TapeBinLoader();
+	if(base.FakeTape.prep) base.TapeEMT36();
 
 	}
 	

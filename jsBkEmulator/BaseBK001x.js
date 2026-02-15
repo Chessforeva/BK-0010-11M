@@ -75,7 +75,8 @@ BaseBK001x = function()
   var CS,CX,gDATA,Px=[],Bf=[];
   var Cmap,Base,Limit;
   
-  this.FakeTape = { prep:false /* is ready to load*/, filename:"", bytes:[] };
+  this.FakeTape = { prep:false /* is ready to load, or save */, filename:"", bytes:[],
+					wr:false };
   this.dsks = false;
   
   this.isM = function() { return is11M; }
@@ -719,7 +720,7 @@ BaseBK001x = function()
   
   /*
   FakeTape
-   Only loads .bin files
+   loads .bin,.cod files, or prepares for download
   */
   
   /* fast loader for BIN files on BK10, avoid monitor */
@@ -731,6 +732,11 @@ BaseBK001x = function()
 	self.writeWord(208, 3); self.writeWord(210, 0);
 	self.TapeBinLoader();
 	r[7]=this.readWORD(180);
+  }
+ 
+  this.TapeEMT36 = function() {
+	  if( self.FakeTape.wr ) this.TapeBinSaver();
+	  else this.TapeBinLoader();
   }
   
   this.TapeBinLoader = function() {
@@ -790,16 +796,54 @@ BaseBK001x = function()
           this.writeByte(/*(short)*/(p+(is11M ? 28 : 26)+i), b);
         }
         
-        this.writeByte(/*(short)*/(p+1),0);
+    this.writeByte(/*(short)*/(p+1),0);
 	
-        this.readWord(r[6], dto);
+    this.readWord(r[6], dto);
 	r[7] = dto.value&0xFFFF>>>0;
 	r[6] = (r[6]+2)&0xFFFF>>>0;
 	
 	this.FakeTape.prep = false;
       
     }
+  }  
+  
+  this.TapeBinSaver = function()  {
+	
+	// if should write tape
+    if(cpu.regs[7] != (is11M ? 55692 : 39998)) return;
+	
+	var i,r = cpu.regs;
+    var /*short*/ p = is11M ? r[0] : r[1];
+    var /*QBusReadDTO*/ dto = new QBusReadDTO(-1);
+	this.FakeTape.bytes = [];
+    var d = this.FakeTape.bytes;
+	
+	this.readWord( 212, dto);
+	var filesize = (dto.value & 0xFFFF)>>>0;
+	this.readWord( 210, dto);
+	var filestart = (dto.value & 0xFFFF)>>>0;
+
+	// in reality program loads at address 003052 (=1578)
+	d[0]=(filestart&255)>>>0;
+	d[1]=((filestart>>8)&255)>>>0;
+	d[2]=(filesize&255)>>>0;
+	d[3]=((filesize>>8)&255)>>>0;
+	
+	for(var i=0; i<filesize; i++) {
+		this.readByte( (filestart+i), dto);
+		d[4+i]=(dto.value & 255)>>>0;
+	}
+
+	this.FakeTape.prep = false;
+	
+	this.writeByte(/*(short)*/(p+1),0);
+	
+    this.readWord(r[6], dto);
+	r[7] = dto.value&0xFFFF>>>0;
+	r[6] = (r[6]+2)&0xFFFF>>>0;
+
   }
+  
   
   /*
 	Can load BASIC,FOCAL,

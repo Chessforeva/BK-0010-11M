@@ -15,8 +15,8 @@ BK-0010-01, BK-0011M emulator HTML5 javascript
 version 1.j
 (07.2021 , added debug mode on F11
  12.2022 , small bugfix for sound
- 02.2026 , fullscreen exit to the main window)
-freeware for deployment on any server
+ 02.2026 , fullscreen exit to the main window, csave)
+freeware for deployment on any font
 
 Эмулятор БК-0010-01, БК-0011M
   исходняк: java BK2010 очень хороший с классами и минимальный
@@ -236,10 +236,14 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
  <select id="userbasic" title="Loads and starts .COD files"
 	onchange="userBasic()">
  <option value="*">Basic</option>
+ <option value="save-cod">(Save!)</option>
+ <option value="*">----</option>
+ <option value="*">----</option>
  <option value="testbas.zip">Test</option>
  <option value="verlet.zip">Verlet</option>
  <option value="poker1.zip">Poker</option>
  </select>
+ <div id="SaveIt"></div>
  
  </td><td width="2"></td>
  
@@ -525,7 +529,15 @@ function userGM2() {
 // load basic program
 function userBasic() {
  var f = GE("userbasic").value;
- if(f!="*") { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
+ if(f=="save-cod") {
+	var O = base.FakeTape;
+	O.prep = true;
+	O.wr = true;
+	setTimeout('BK_starttape(3)',5000);
+ }
+ else {
+  if(f!="*") { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
+ }
 }
 
 setInterval('userLoop3sec()',3000);	// once per 3seconds
@@ -625,6 +637,20 @@ if( FullScreen==5 ) {	// Return the main window
  
 }
 
+ if(base.FakeTape.wr) {
+	O = base.FakeTape;
+	if( !O.prep && O.bytes.length>0 ) {
+		var Q=GE("SaveIt");
+		var b1='<FONT COLOR="brown"><b><u>';
+		var b2='<div title="To download" onclick="download_cod(';
+		var b3=')" style="display:inline;cursor:pointer">';
+		var b4='</div><a id="DOWNLOAD';
+		var b5='"></a></u></b></FONT> ';
+		var s=b1+b2+b3+"[save.cod]"+b4+'_COD'+b5;
+		if(s.length) Q.innerHTML = s;	
+		O.wr = false;
+	}
+  }
 
  if(dbg.active) {
 	O = GE("debug_div");
@@ -752,6 +778,18 @@ function download(i) {
     a.href = URL.createObjectURL(file);
 
     a.download = "nw_"+disk.imageName;
+    a.click();
+}
+
+function download_cod(i) {
+
+    var a = GE("DOWNLOAD_COD");
+	var d = base.FakeTape.bytes;
+    var data = new Uint8Array( d.length );
+	for(var i=0; i<d.length; i++) data[i]=d[i];
+    var file = new Blob([data], {type: "text/plain"});
+    a.href = URL.createObjectURL(file);
+    a.download = "save.cod";
     a.click();
 }
 
