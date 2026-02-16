@@ -74,11 +74,13 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
  <td valign="top">
  <select id="userboot" title="Booting options" onchange="userBoot()">
   <option value="B10">BK0010 + Basic ROM</option>
+  <option value="*1">--------------------</option>
   <option value="FScr">Go FullScreen</option>
   <option value="RST">Reset restart (F12)</option>  
   <option value="RLD">Reload clear all </option>
   <option value="DBG">Debug (F11)</option>
-  <option value="DtyCvx">Set dirty laud covox (rare)</option>
+  <option value="aDSK0">Add B: an empty disk</option>
+  <option value="*2">--------------------</option>
   <option value="F10">BK0010 + Focal ROM</option>
   <!--<option value="base10">BK0010 monitor only</option>-->
   <option value="FDD10">BK0010+FDD  and drop ...</option>
@@ -106,7 +108,8 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="AOMD2">Media disk#1 in B:</option>
   <option value="AOMD3">Media disk#2 in B:</option>
   <option value="Covox">Covox laud drill,ugh...</option>
-  <option value="aDSK0">Add B: an empty disk</option>
+  <option value="*3">--------------------</option>
+  <option value="DtyCvx">Set dirty laud covox (rare)</option>
   <option value="Cheat">How to cheat lives!</option>
   <!--<option value="aDSK0">Add unformatted disk</option>-->
  </select>
@@ -237,8 +240,8 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
 	onchange="userBasic()">
  <option value="*">Basic</option>
  <option value="save-cod">(Save!)</option>
- <option value="*">----</option>
- <option value="*">----</option>
+ <option value="**">----</option>
+ <option value="**">----</option>
  <option value="testbas.zip">Test</option>
  <option value="verlet.zip">Verlet</option>
  <option value="poker1.zip">Poker</option>
@@ -393,12 +396,14 @@ function loaded() {
 // User GUI cases
 //----------------
 function userBoot() {
- switch(GE("userboot").value) {
+ var O = GE("userboot");
+ switch(O.value) {
  case "B10": base.setBASIC10Model(); cpu.reset(); break;
- case "FScr": openFullscreen(); break;
- case "RST": cpu.reset(); break;
+ case "FScr": openFullscreen(); O.value = "*1"; break;
+ case "RST": cpu.reset(); O.value = "*1"; break;
  case "RLD": document.location.href = href.split('?')[0]; break;
- case "DtyCvx": base.setDirtyCovox(); break;
+ case "DBG": dbg.show(); O.value = "*2"; break;
+ case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); O.value = "*2"; break;
  case "F10": base.setFOCAL10Model(); cpu.reset(); break;
  case "base10": base.setBase10Model(); cpu.reset(); break;
  case "FDD10": startdisks(0,[],1); break; 
@@ -426,14 +431,11 @@ function userBoot() {
  case "AOMD2": startdisks(1,["ALEXSOFT.zip","AOMEDIA2.zip"],1); break;
  case "AOMD3": startdisks(1,["ALEXSOFT.zip","AOMEDIA3.zip"],1); break;
  case "Covox": userGames("covox.zip"); sHelper(8,4); base.setDirtyCovox(); sHelper(12,3); break; 
- case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); break;
- case "DBG": dbg.show(); break;
- case "Cheat": cheatings.cheathelp(); break;
+ case "DtyCvx": base.setDirtyCovox(); O.value = "*3"; break;
+ case "Cheat": cheatings.cheathelp(); O.value = "*3"; break;
  }
  BK_autokeys = [];
 }
-
-
 
 
 function _starterhelper(ch) {
@@ -523,20 +525,21 @@ function GoDisks() {
 // load disks
 function userGM2() {
  var f = GE("usergm2").value;
- if(f!="*") startdisks(1,[f],1);
+ if(f.indexOf("*")<0) startdisks(1,[f],1);
 }
 
 // load basic program
 function userBasic() {
- var f = GE("userbasic").value;
+ var O = GE("userbasic"), f=O.value;
  if(f=="save-cod") {
-	var O = base.FakeTape;
-	O.prep = true;
-	O.wr = true;
-	setTimeout('BK_starttape(3)',5000);
+	var G = base.FakeTape;
+	G.prep = true;
+	G.wr = true;
+	setTimeout('BK_starttape(3)',2000);
+	O.value = "*";
  }
  else {
-  if(f!="*") { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
+  if(f.indexOf("*")<0) { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
  }
 }
 
