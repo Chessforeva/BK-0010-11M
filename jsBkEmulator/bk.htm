@@ -75,11 +75,11 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
  <select id="userboot" title="Booting options" onchange="userBoot()">
   <option value="B10">BK0010 + Basic ROM</option>
   <option value="*1">--------------------</option>
-  <option value="FScr">Go FullScreen</option>
+  <option value="FScr">FullScreen (Alt+Enter)</option>
   <option value="RST">Reset restart (F12)</option>  
   <option value="RLD">Reload clear all </option>
   <option value="DBG">Debug (F11)</option>
-  <option value="aDSK0">Add B: an empty disk</option>
+  <option value="aDSK0">Add B: empty sys-disk</option>
   <option value="*2">--------------------</option>
   <option value="F10">BK0010 + Focal ROM</option>
   <!--<option value="base10">BK0010 monitor only</option>-->
@@ -553,6 +553,8 @@ function userLoop3sec()
  var Q,m,n,o,s,i,v, g;
  
 if(FullScreen) {
+
+ if(FullScreen==0.5) { openFullscreen(); return; }
 
  if(FullScreen==1) {
  WindoW = winWiHi();

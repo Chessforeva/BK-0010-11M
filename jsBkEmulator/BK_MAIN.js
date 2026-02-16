@@ -178,7 +178,7 @@ if(e.type=="keyup") keymap.keyRelease(e);
 
 if(e.type=="keydown") {
  if(e.keyCode==76 && e.ctrlKey) cheatings.livesfinder();
- if(e.keyCode==13 && (e.altKey || e.ctrlKey)) FullScreen=1;
+ if(e.keyCode==13 && (e.altKey || e.ctrlKey)) FullScreen=0.5;
 }
 
 }
