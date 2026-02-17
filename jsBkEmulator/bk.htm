@@ -79,7 +79,6 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="RST">Reset restart (F12)</option>  
   <option value="RLD">Reload clear all </option>
   <option value="DBG">Debug (F11)</option>
-  <option value="aDSK0">Add B: empty sys-disk</option>
   <option value="*2">--------------------</option>
   <option value="F10">BK0010 + Focal ROM</option>
   <!--<option value="base10">BK0010 monitor only</option>-->
@@ -91,6 +90,8 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="MPage">CSI-DOS A:B:samples</option>
   <option value="Mega">MegaDemo COVOX MUSIC</option>
   <option value="Insl">INSULT MUSIC DEMO</option>
+  <option value="HNY2020">HNY2020 music demo</option>
+  <option value="CSqld">CS!quel music demo</option>
   <option value="Covid">Covid music demo</option>
   <option value="AODOS">AODOS 2.10 chess</option>
   <option value="MKDOS">MKDOS 2.10</option>
@@ -111,6 +112,10 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="*3">--------------------</option>
   <option value="DtyCvx">Set dirty laud covox (rare)</option>
   <option value="Cheat">How to cheat lives!</option>
+  <option value="*4">--------------------</option>
+  <option value="aDSK0">Add an empty AN-bkd to B:</option>
+  <option value="aDSK1">Add an empty CSI-img to B:</option>
+
   <!--<option value="aDSK0">Add unformatted disk</option>-->
  </select>
  <br>
@@ -142,7 +147,9 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="CS3x">64K x40</option>
   <option value="CS3a">64K x60</option>
   <option value="CS3b">64K x80</option>
-  <option value="CS3c">32K x100</option>
+  <option value="CS3d">64K x100</option>
+  <option value="CS3e">64K x120</option>
+  <option value="CS3f">64K x200</option>
   <option value="CS4">24K x30</option>
   <option value="CS5">24K x10</option>
   <option value="">...faster...</option>
@@ -403,7 +410,6 @@ function userBoot() {
  case "RST": cpu.reset(); O.value = "*1"; break;
  case "RLD": document.location.href = href.split('?')[0]; break;
  case "DBG": dbg.show(); O.value = "*2"; break;
- case "aDSK0": if(base.dsks) fdc.addDisk("empty.bkd",[]); O.value = "*2"; break;
  case "F10": base.setFOCAL10Model(); cpu.reset(); break;
  case "base10": base.setBase10Model(); cpu.reset(); break;
  case "FDD10": startdisks(0,[],1); break; 
@@ -414,6 +420,8 @@ function userBoot() {
  case "MPage": startdisks(1,["MPAGE1.zip","MPAGE2.zip"],1); sColor(9); break;
  case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); sHelper(5,4); sound_sv="cvx"; break;
  case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); sHelper(5,1); sHelper(24,2); break;
+ case "HNY2020": startdisks(1,["hny2020.zip"],1); sColor(3); sHelper(5,6); sHelper(24,5); break;  
+ case "CSqld": startdisks(1,["csquel.zip"],1); sColor(3); sHelper(5,6); sHelper(24,5); break;
  case "Covid": startdisks(1,["COVID.zip"],1); sHelper(5,1); sound_sv="8910mx"; break;
  case "AODOS": startdisks(1,["AODOS.zip"],1); break;
  case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
@@ -433,6 +441,8 @@ function userBoot() {
  case "Covox": userGames("covox.zip"); sHelper(8,4); base.setDirtyCovox(); sHelper(12,3); break; 
  case "DtyCvx": base.setDirtyCovox(); O.value = "*3"; break;
  case "Cheat": cheatings.cheathelp(); O.value = "*3"; break;
+ case "aDSK0": if(base.dsks) /*fdc.addDisk("empty.bkd",[])*/  { LOADDSK[0]="EMPTY.zip"; GoDisks(); };  O.value = "*4"; break;
+ case "aDSK1": if(base.dsks) { LOADDSK[0]="EMPTYCSI.zip"; GoDisks(); }; O.value = "*4"; break;
  }
  BK_autokeys = [];
 }
@@ -445,6 +455,7 @@ function _starterhelper(ch) {
   case 3:  soundOn=1; snd_mode(); sound_sv="cvx"; break;
   case 4:  GE("userspeed").value = "an4MHz"; userSpeed(); break;
   case 5:  soundOn=1; snd_mode(); sound_sv="8910mx"; break;
+  case 6:  GE("userspeed").value = "CS3e"; userSpeed(); break;
  }
 }
 
@@ -486,7 +497,9 @@ function userSpeed() {
  case "CS3x": S.set(64000,40); break;
  case "CS3a": S.set(64000,60); break;
  case "CS3b": S.set(64000,80); break;
- case "CS3c": S.set(32000,100); break;
+ case "CS3d": S.set(64000,100); break;
+ case "CS3e": S.set(64000,120); break;
+ case "CS3f": S.set(64000,200); break;
  case "CS4": S.set(24000,30); break;
  case "CS5": S.set(24000,10); break;
  case "CF1": S.set(300000,20); break;
@@ -498,7 +511,8 @@ function userSpeed() {
  case "C200K4": S.set(200000,250); break;
  case "C500K4": S.set(500000,250); break;
  }
- base.soundClear();	// also adjusts sound speed
+ 
+ snd(); // also adjusts sound speed
 }
 
 // or add mouse/touch listeners for canvas
@@ -681,6 +695,7 @@ if( FullScreen==5 ) {	// Return the main window
  
  Q = GE("soundcard");
  if(Q!=null) {
+	var snd_curr = Q.value;
 	if(!soundOn) { Q.value="none"; snd(); }
 	else if(Q.value=="none") {
 		if(sound_sv!="none") v = sound_sv; 
@@ -699,6 +714,7 @@ if( FullScreen==5 ) {	// Return the main window
 	base.sounds( o, n.indexOf("mx")>0, m, n=="cvx" );
 	Q.disabled=(soundOn==0);
 	if(m) setTimeout('snd3cn()',1000);		// too smart
+	if(snd_curr!=Q.value) snd();	// clear
 	}
  
  //var ds = Disasm.disasm(base, cpu.regs[7], true);
@@ -756,7 +772,10 @@ function _setRetValues() {
  
 }
 
-function snd() { base.soundClear(); }
+function snd() { 
+	base.soundClear();
+	}
+
 function snd_mode() {
 	if(soundOn) {
 		var sp = GE("userspeed").value;
