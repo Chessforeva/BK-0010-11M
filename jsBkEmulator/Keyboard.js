@@ -5,15 +5,9 @@ Keyboard = function()
   var /*short*/status = 64;
   var /*boolean*/keyDown = false;
 
-  /*int*/this.getBaseAddress = function()
-  {
-    return 65456;
-  }
+  /*int*/this.getBaseAddress = 65456;
 
-  /*int*/this.getNumWords = function()
-  {
-    return 2;
-  }
+  /*int*/this.getNumWords = 2;
 
   /*boolean*/this.readWord = function(/*int*/addr, /*QBusReadDTO*/ result)
   {

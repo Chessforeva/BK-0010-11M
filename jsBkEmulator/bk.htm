@@ -15,7 +15,10 @@ BK-0010-01, BK-0011M emulator HTML5 javascript
 version 1.j
 (07.2021 , added debug mode on F11
  12.2022 , small bugfix for sound
- 02.2026 , fullscreen exit to the main window, csave)
+ 02.2026 , fullscreen exit to the main window, csave
+ 02.2026 , a beta version of smk-512 without HDD
+
+ )
 freeware for deployment on any font
 
 Эмулятор БК-0010-01, БК-0011M
@@ -80,12 +83,17 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="RLD">Reload clear all </option>
   <option value="DBG">Debug (F11)</option>
   <option value="*2">--------------------</option>
+  <option value="SMK">Turn the SMK-512 on</option>  
   <option value="F10">BK0010 + Focal ROM</option>
-  <!--<option value="base10">BK0010 monitor only</option>-->
   <option value="FDD10">BK0010+FDD  and drop ...</option>
   <option value="FDD11">BK0011M+FDD ...a file</option>
+  <option value="FDD11SMK">BK0011M+SMK512...a file</option>  
   <option value="Alx0A330">Alex(BK10 DBASIC FDD find)</option>
   <option value="Alx1A330">AlexANDOS330(BK11)</option>
+  <option value="Alx2A330">Alex(BK11M SMK512)</option> 
+  
+  <option value="SMK_mkdos">SMK MKDOS</option>
+  
   <option value="CSIMir">CSI-DOS 3.32 MIR MUSIC</option>
   <option value="MPage">CSI-DOS A:B:samples</option>
   <option value="Mega">MegaDemo COVOX MUSIC</option>
@@ -102,6 +110,8 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="ANDOS33b">ANDOS empty (BK11)</option>
   <option value="CVXS">ANDOS Covox demos</option>
   <option value="MzRz">MusicRelease demo</option>
+  <option value="Lecsic">Lecsicon music demo</option>  
+  <option value="Ecsit">Ecsit (emul-bugz-todo:)</option>
   <option value="POP">Prince Of Persia game</option>
   <option value="MiCo">Miami Cobra racing</option>
   <option value="BKMna">BK-Mania 97,96 A:B:</option>
@@ -115,14 +125,20 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="*4">--------------------</option>
   <option value="aDSK0">Add an empty AN-bkd to B:</option>
   <option value="aDSK1">Add an empty CSI-img to B:</option>
+	  
 
   <!--<option value="aDSK0">Add unformatted disk</option>-->
  </select>
  <br>
   <table><tr>
  <td><font size="2"><div id="PCaddr"></div></font></td><td width="4"></td>
- <td><font size="2"><div id="MHZshow"></div></font></td><td width="4"></td>	
- </tr></table>
+ <td><font size="2"><div id="MHZshow"></div></font></td><td width="4"></td>
+  <tr>
+ <td><font size="2"><div id="BKshow"></div></font></td><td width="4"></td>	
+ </tr>
+ 
+ </tr>
+ </table>
  <input type="button" id="kbrd" value="Show keyboard" onclick="kbShow()">
  </td><td width="2"></td>
  
@@ -149,15 +165,18 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="CS3b">64K x80</option>
   <option value="CS3d">64K x100</option>
   <option value="CS3e">64K x120</option>
-  <option value="CS3f">64K x200</option>
-  <option value="CS4">24K x30</option>
-  <option value="CS5">24K x10</option>
+  <option value="CS3f">64K x160</option>
+  <option value="CS3s">64K x200</option>
+  <option value="">...slower...</option>
+  <option value="CS4a">24K x30</option>
+  <option value="CS4b">24K x60</option>
+  <option value="CS4c">24K x120</option>
   <option value="">...faster...</option>
   <option value="CF1">300K x20</option>  
   <option value="CF2">460K x30</option>
   <option value="CF3">200K x80</option>
   <option value="CF4">200K x160</option>
-  <option value="">..fps fast..</option>
+  <option value="">..fps fast..</option> 
   <option value="C50K4">50K per 4ms</option>  
   <option value="C100K4">100K 4ms</option>
   <option value="C200K4">200K 4ms</option>
@@ -171,6 +190,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="bkdemo.zip">BK Demo(music!)</option>
   <option value="valley.zip">(King's)Valley</option>
   <option value="digger.zip">Digger</option>
+  <option value="tetris.zip">Tetris</option>
   <option value="navvy.zip">Navvy(digger)</option>
   <option value="soldat.zip">Soldat(music!)</option>
   <option value="meloman.zip">Meloman(music!)</option>
@@ -197,7 +217,6 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="bubbler.zip">Bubbler</option>
   <option value="horror.zip">Horror1</option>
   <option value="tarzan.zip">Tarzan</option>
-  <option value="tetris.zip">Tetris</option>
   <option value="longraid.zip">Long Raid</option>
   <option value="penguin.zip">Penguin(adv.)courier</option>
   <option value="raceplay.zip">Raceplay</option>
@@ -324,6 +343,7 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
 <script src="cpu_K1801VM1.js"></script>
 <script src="cpu_Disasm.js"></script>
 <script src="FDDController.js"></script>
+<script src="HDDController.js"></script>
 <script src="FloppyDisk.js"></script>
 <script src="DBG.js"></script>
 <script src="BaseBK001x.js"></script>
@@ -351,6 +371,10 @@ return false;
 // The main BK global 
 //-----------------------
 //
+
+// A global flag that extended memory is used
+var SMK = false;
+
 var dbg = new DBG();
 
 var base = new BaseBK001x();
@@ -361,6 +385,8 @@ var keymap = new KeyMapper();
 var joyMapper = new JoystickMapper();
 
 var fdc = new FDDController();
+var hdc = new HDDController();
+var hdc0 = new DummyHDDController();
 
 document.onkeypress = keyact;
 document.onkeydown = keyact;
@@ -410,12 +436,16 @@ function userBoot() {
  case "RST": cpu.reset(); O.value = "*1"; break;
  case "RLD": document.location.href = href.split('?')[0]; break;
  case "DBG": dbg.show(); O.value = "*2"; break;
+ case "SMK": base.setSMK11Model(); break;
  case "F10": base.setFOCAL10Model(); cpu.reset(); break;
  case "base10": base.setBase10Model(); cpu.reset(); break;
  case "FDD10": startdisks(0,[],1); break; 
  case "FDD11": startdisks(1,[],1); break;
+ case "FDD11SMK": base.setSMK11Model(); startdisks(1,[],1); break;
  case "Alx0A330": startdisks(0,["ALEXSOFT.zip"],1); break;
  case "Alx1A330": startdisks(1,["ALEXSOFT.zip"],1); break;
+ case "Alx2A330": base.setSMK11Model(); startdisks(1,["ALEXSOFT.zip"],1); break; 
+ case "SMK_mkdos": base.setSMK11Model(); startdisks(1,["MK_DOS.zip"],1); sHelper(3,80); sHelper(5,8); break;
  case "CSIMir": startdisks(1,["CSIMIR.zip"],1); sColor(9); sHelper(5,1); sHelper(15,2); break;
  case "MPage": startdisks(1,["MPAGE1.zip","MPAGE2.zip"],1); sColor(9); break;
  case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); sHelper(5,4); sound_sv="cvx"; break;
@@ -427,11 +457,15 @@ function userBoot() {
  case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
  case "Robcop": startdisks(1,["ROBOCOP.zip"],1); break;
  case "Revolt": startdisks(1,["MK317.zip","REVOLT.zip"],1); break;
- case "NORDBK": startdisks(0,["NORDBK10.zip"],1); break;
+ case "NORDBK": startdisks(0,["NORDBK10.zip"],1); sHelper(5,7); break;
  case "ANDOS33a": startdisks(1,["SYSEMPTY.zip"],1); break;
  case "ANDOS33b": startdisks(1,["EMPTY.zip"],1); break;
  case "CVXS": startdisks(1,["covoxs.zip"],1); sHelper(8,4); sound_sv="cvx"; break; 
  case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); sHelper(5,1); sound_sv="8910c3"; break;
+ case "Lecsic": base.setSMK11Model(); startdisks(1,["lecsicon.zip"],1); cpu.reset();
+		sColor(9); sHelper(5,6); sound_sv="8910mx"; break;
+ case "Ecsit": base.setSMK11Model(); startdisks(1,["ECSIT.zip"],1); cpu.reset();
+		sColor(9); sHelper(5,6); break;
  case "POP": startdisks(0,["PRINCE.zip"],1); break;
  case "MiCo": startdisks(1,["MK317.zip","MIAMI.zip"],1); break; 
  case "BKMna": startdisks(1,["BKMANIA97.zip","BKMANIA96.zip"],1); break;
@@ -447,7 +481,6 @@ function userBoot() {
  BK_autokeys = [];
 }
 
-
 function _starterhelper(ch) {
  switch(ch) {
   case 1:  GE("userspeed").value = "CS3b"; userSpeed(); break;
@@ -456,10 +489,19 @@ function _starterhelper(ch) {
   case 4:  GE("userspeed").value = "an4MHz"; userSpeed(); break;
   case 5:  soundOn=1; snd_mode(); sound_sv="8910mx"; break;
   case 6:  GE("userspeed").value = "CS3e"; userSpeed(); break;
+  case 7:  GE("userspeed").value = "C50K4"; userSpeed(); break;
+  case 8:  GE("userspeed").value = "C200K4"; userSpeed(); break;
+  case 80:  cpu.reset(); break;
  }
 }
 
+var boot_parms = { bkmode:1, reset:0, ck:0 };
+
 function startdisks(isM,zips,rst) {
+	boot_parms.isM = isM;
+	boot_parms.rst = rst;
+	boot_parms.ck = 1;
+	
 	if(isM) base.setFDD11Model();
 	 else base.setFDD10Model();
 	if(zips.length) {
@@ -499,9 +541,11 @@ function userSpeed() {
  case "CS3b": S.set(64000,80); break;
  case "CS3d": S.set(64000,100); break;
  case "CS3e": S.set(64000,120); break;
- case "CS3f": S.set(64000,200); break;
- case "CS4": S.set(24000,30); break;
- case "CS5": S.set(24000,10); break;
+ case "CS3f": S.set(64000,160); break;
+ case "CS3s": S.set(64000,200); break;
+ case "CS4a": S.set(24000,30); break;
+ case "CS4b": S.set(24000,60); break;
+ case "CS4c": S.set(24000,120); break;
  case "CF1": S.set(300000,20); break;
  case "CF2": S.set(460000,30); break;
  case "CF3": S.set(200000,80); break;
@@ -528,9 +572,18 @@ function userGames(file) {
 	cpu.reset();
 	sColor(0);
 	var f = file || GE("usergames").value;
+	
+	if(f=='tetris.zip') setTimeout('gmcatch(1)',18000);		// press 0
+	
 	if(f.length) Gbin.getUrl("files/"+f);	// read from url, see BK_MAIN.js
 }
 
+function gmcatch(ch) {
+ if(ch==1) {
+  setTimeout('_starterhelper(7)',999);		// make keyboard more responding
+  BK_autokeys = BK_autokeys.concat([10,10,48,48]);	// Enter,0
+ }
+}
 
 function GoDisks() {
 	Gbin.getUrl("files/"+LOADDSK[0]);
@@ -723,7 +776,15 @@ if( FullScreen==5 ) {	// Return the main window
    var pc=cpu.regs[7].toString(8);
    Q.innerHTML = "PC:"+ ("000000").substr(pc.length)+pc;
    }
- 
+ Q = GE("BKshow");
+ if(Q!=null) {
+   var pc=cpu.regs[7].toString(8);
+   var s="BK"+ (base.isM()?"11":"10");
+   if(fdc.drives.length>0) s+=" FDD";
+   if(SMK) s+=" SMK-512";
+   Q.innerHTML = s;
+   }
+   
  Q = GE("filesloaded");
  if(Q!=null) {
 	s="";

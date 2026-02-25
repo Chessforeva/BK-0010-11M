@@ -15,15 +15,9 @@ CPUTimer = function()
   
   self.cycles = 0;
 
-  /*int*/this.getBaseAddress = function()
-  {
-    return 65478;
-  }
+  /*int*/this.getBaseAddress = 65478;
 
-  /*int*/this.getNumWords = function()
-  {
-    return 3;
-  }
+  /*int*/this.getNumWords = 3;
 
   /*boolean*/this.gotInterrupt = function()
   {

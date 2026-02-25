@@ -194,7 +194,7 @@ this.redraw = function() {
 	s += s_port( '177712:' );
 	s += s_port( '177714:' );
 	s += s_port( '177716:' );
-
+	
 	GE("dbg_ports").innerHTML = s;
 	
 	self.MemRdrw();

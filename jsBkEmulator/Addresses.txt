@@ -1,0 +1,112 @@
+1. Memory Layout (BK-0010 / BK-0010-01)
+
+Address (octal)    Purpose
+000000 - 000377    Interrupt vectors, system variables, stack (~0.5 KB)
+000400 - 037777    User RAM, BASIC programs & data (~15.5 KB)
+040000 - 077777    Framebuffer / video RAM (~16 KB)
+100000 - 117777    System monitor ROM (~8 KB)
+120000 - 137777    BASIC ROM #1 (~8 KB)
+140000 - 157777    BASIC ROM #2 (~8 KB)
+160000 - 177577    BASIC ROM #3 (~7.5 KB)
+177600 - 177777    Hardware registers (~0.5 KB)
+
+BK-0010 Memory Map
+Here is the breakdown of the memory pages.
+ Note that in the PDP-11 world, octal is the "native" language,
+ so those addresses are the most precise way to view the hardware boundaries.
+
+Page    Octal Address Range    Decimal Address Range    Typical Usage
+0    000000 - 017777    00000 - 08191    User RAM (System variables/Stack)
+1    020000 - 037777    08192 - 16383    User RAM
+2    040000 - 057777    16384 - 24575    Video RAM (Screen Buffer)
+3    060000 - 077777    24576 - 32767    Video RAM (Screen Buffer)
+4    100000 - 117777    32768 - 40959    ROM (BASIC / FOCAL)
+5    120000 - 137777    40960 - 49151    ROM (BASIC / FOCAL)
+6    140000 - 157777    49152 - 57343    ROM (BASIC / FOCAL)
+7    160000 - 177777    57344 - 65535    Monitor ROM & I/O Registers
+
+
+2. BK-0010 Memory Map (with FDD Controller)
+In a standard configuration with a disk interface (like the KNGMD),
+ the mapping for the first 32 KB (RAM) remains the same,
+ but the upper 32 KB is managed to allow for the Disk Operating System.
+
+Page    Octal Address Range    Decimal Address Range    Usage with FDD
+0    000000 - 017777    00000 - 08191    User RAM / System Stack
+1    020000 - 037777    08192 - 16383    User RAM
+2    040000 - 057777    16384 - 24575    Video RAM
+3    060000 - 077777    24576 - 32767    Video RAM
+4    100000 - 117777    32768 - 40959    FDD Controller ROM (Bootloader)
+5    120000 - 137777    40960 - 49151    FDD ROM / RAM Buffer
+6    140000 - 157777    49152 - 57343    System ROM (Monitor)
+7    160000 - 177777    57344 - 65535    I/O Registers (FDD & System)
+
+
+The 16 RAM Pages (Hardware View)
+The BK-0011M is where things get truly "modern" (for the 1980s).
+ Unlike the BK-0010, which had a fixed 32 KB of RAM, 
+ the BK-0011M features 128 KB of RAM,
+ divided into 16 banks of 8 KB each.
+
+To access all that memory through a 16-bit (64 KB) CPU,
+ it uses heavy bank switching.
+ The 64 KB address space is split into four 16 KB windows.
+
+
+
+3.BK-0011M Logical Memory Map (CPU View)
+
+The CPU sees four "Windows."
+ While the addresses are fixed, 
+ what is inside them can be swapped out using 
+ the System Control Register (usually at octal 177716).
+
+
+Window    Octal Address Range  Decimal Address Range    Usage / Contents
+0    000000 - 037777    00000 - 16383    RAM Page 0 (Fixed, contains vectors)
+1    040000 - 077777    16384 - 32767    RAM Page 1 (Usually Video RAM)
+2    100000 - 137777    32768 - 49151    Switchable RAM/ROM (Pages 2-15)
+3    140000 - 157777    49152 - 57343    System ROM (BOS / Monitor)
+I/O  160000 - 177777    57344 - 65535    Internal Registers
+
+Page #    Octal Start    Decimal Start    Primary Function
+0    000000    00000    System RAM (Lower)
+1    020000    08192    System RAM (Upper)
+2    040000    16384    Video RAM Layer 0
+3    060000    24576    Video RAM Layer 1
+4    100000    32768    User RAM / Buffer
+5    120000    40960    User RAM / Buffer
+6    140000    49152    User RAM / Buffer
+7    160000    57344    User RAM / Buffer
+8-15   -         -      Extended RAM (used by RAM disks/OS)
+
+
+
+4. BK-0011M + SMK-512
+(without bank switching active)
+
+Octal  Address  Size    Description
+000000 - 000377 256 B   Interrupt vectors
+000400 - 077777 32 KB   Main RAM (user RAM)
+100000 - 137777 16 KB   Video RAM (screen memory)
+140000 - 157777 8 KB    Monitor ROM
+160000 - 173777 6 KB    BASIC / FOCAL / BOS ROM (depending on config)
+174000 - 177577 ~3.5 KB Extension ROM / cartridge
+177600 - 177777 128 B   I/O registers
+
+SMK-512 adds 512 KB physical RAM, divided into 32 x   16 KB pages.
+The CPU still sees only 64 KB at once, but:
+The region 000000 - 077777 (lower 32 KB)
+And sometimes 100000 - 137777 can be bank-switched.
+
+Control Register (#177130) - the same shared with FDD (backwards compatible to 326).
+The memory window remapping logic:
+SMK-512 Logic Cheat Sheet
+--------------------------
+  Bit    Name             Function
+  0-4 Page Selection   Selects one of 32 physical 16KB banks from the 512KB array.
+   5  Window Map       0: Map to #100000 (Window 2). 1: Map to #040000 (Window 1).
+   6  Write Protect    1: RAM is writable. 0: RAM acts as Read-Only (ROM mode).
+   7  Override         1: Override (Muzzle) internal system ROM/RAM. 0: Listen-only mode.
+ 8-15 Ext Super-SMK    Standard SMK Extends page count beyond 512KB (some emulators)
+

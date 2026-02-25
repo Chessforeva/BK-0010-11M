@@ -69,7 +69,7 @@ function FPSloop( onetime )
 	
   var to=cpu.Cycles + BK_speed.cyc;	// bunch of cycles
   
-  var d=0;
+  var d=0, tp = base.FakeTape.prep;
   /* takes most CPU */
   while(cpu.Cycles<to)
 	{
@@ -80,7 +80,7 @@ function FPSloop( onetime )
 		dbg.show();
 		break;
 		}
-	if(base.FakeTape.prep) base.TapeEMT36();
+	if(tp && base.FakeTape.prep) base.TapeEMT36();
 
 	}
 	
@@ -141,7 +141,13 @@ Gbin.onGot=function(filename, bytes)
 		}
 	if(f.indexOf(".IMG")>0 || f.indexOf(".BKD")>0) {
 		var isA = (fdc.drives.length==0);
-		if(!base.dsks) base.setFDD11Model();
+		if(!base.dsks) {
+			if(!SMK && (boot_parms.ck && boot_parms.bk==0)) {
+				base.setFDD10Model();
+				boot_parms.ck = 0;
+			}
+			else base.setFDD11Model();
+			}
 		fdc.addDisk(filename,bytes);
 		if(isA) cpu.reset();
 		if(LOADDSK.length>1) {

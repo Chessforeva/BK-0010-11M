@@ -302,7 +302,7 @@ FloppyDisk = function( diskName, diskData, diskId )
   /*int*/this.getData = function(/*int*/head) {
     wordChanged = false;
 
-    if (verbose) console.log("FDD: reading data word " + t +
+    if (verbose) console.log("FDD: reading data word " + rawTrack[head][P] +
 	" at track position " + P);
 
     return rawTrack[head][P];

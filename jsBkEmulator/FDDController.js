@@ -12,17 +12,13 @@ FDDController = function()
   var /*boolean*/diskEnabled = false;
   var /*boolean*/isReadable = true;
   
+  var fstSmk = true;
+  
   self.drives = D;
 
-  /*int*/this.getBaseAddress = function()
-  {
-    return 65112;
-  }
+  /*int*/this.getBaseAddress = 65112;
 
-  /*int*/this.getNumWords = function()
-  {
-    return 2;
-  }
+  /*int*/this.getNumWords = 2;
 
   /*boolean*/this.gotInterrupt = function()
   {
@@ -59,9 +55,10 @@ FDDController = function()
             seekingMarker = false;
 	    }
         }
-        result.value = /*(short)*/a&0xFFFF>>>0;
+        result.value = (/*(short)*/a & 0xFFFF)>>>0;
       }
-      return true; }
+      return true;
+	  }
     if (C == 65114) {
       if (diskEnabled)
         result.value = /*(short)*/drive.getData(head)&0xFFFF>>>0;
@@ -101,58 +98,64 @@ FDDController = function()
     var C = (addr & 0xFFFE)>>>0;
     if (C == 65112)
     {
-      var /*int*/a = (controlReg ^ data)>>>0;
 
-      if (a & 0x1F)
+      var /*int*/a = (controlReg ^ data)>>>0;
+		
+      if ( a & 19 )
       {
         if (diskEnabled) {
           drive.flush();
         }
 	
 	/*set drive*/
-        switch (data & 0xF)
-	{
-	case 0: /* no new drive */ break;
-	case 1: default: drive = D[0]; break;
-	case 2: case 6: case 10: case 14: drive = D[1]; break;
-	case 4: case 12: drive = D[2]; break;
-	case 8: drive = D[3]; break;
-	}
+	
+	    switch (data & 19)
+		{
+		case 17: drive = D[0]; break;
+		case 18: drive = D[1]; break;
+		default: drive = null;
+		}
 	
         diskEnabled = (drive != null);
-      }
+      }  
+
+	  if(!SMK) {
+
+    // ... existing FDD model switching logic ...
+
 
       if (a & 0xC) {	/* Actually error case */
+	  
         base.remap = true;	// do not reload memory
         switch (data & 0xC)
         {
         case 12:
           base.setBASIC10Model();
-	  console.log("FDC: setBASIC10Model");
+          console.log("FDC: setBASIC10Model");
           isReadable = false;
           break;
         case 8:
           base.setBase10Model();
-	  console.log("FDC: setBase10Model");
+          console.log("FDC: setBase10Model");
           isReadable = true;
           break;
-        case 9:
-        case 10:
-        case 11:
         default:
           if(base.isM()) {
-		base.setFDD11Model();
-		console.log("FDC: setFDD11Model");
+			base.setFDD11Model();
+			console.log("FDC: setFDD11Model");
 		}
 	  else {
-		base.setFDD10Model();
-		console.log("FDC: setFDD10Model");
-		}
+			base.setFDD10Model();
+			console.log("FDC: setFDD10Model");
+			}
 	  
           isReadable = true;
         }
         base.remap = false;
-      }
+
+	   }
+	  
+	  }
 
       if (diskEnabled)
       {
@@ -173,15 +176,21 @@ FDDController = function()
       if (data & 0x100) {
         seekingMarker = true;
       }
+	  
+	  if (SMK) {
+		  isReadable = base.setMemoryModelByFDCBits(data);
+      }
+	  
       controlReg = data;
-    }
+	}
+	
     else
-    if (C == 65114) {
-      seekingMarker = false;
-      if (diskEnabled)
-        drive.deferredWrite((controlReg >>> /*HEAD*/5) & 1, data);
-    } else
-	{ return false; }
+		if (C == 65114) {
+			seekingMarker = false;
+			if (diskEnabled)
+				drive.deferredWrite((controlReg >>> /*HEAD*/5) & 1, data);
+		} else
+			{ return false; }
     return true;
   }
   
