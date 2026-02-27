@@ -96,10 +96,12 @@ FDDController = function()
     this.updateTimer();
 
     var C = (addr & 0xFFFE)>>>0;
+	var d = (data & 0xFFFF)>>>0;
+	
     if (C == 65112)
     {
 
-      var /*int*/a = (controlReg ^ data)>>>0;
+      var /*int*/a = (controlReg ^ d)>>>0;
 		
       if ( a & 19 )
       {
@@ -109,7 +111,7 @@ FDDController = function()
 	
 	/*set drive*/
 	
-	    switch (data & 19)
+	    switch (d & 19)
 		{
 		case 17: drive = D[0]; break;
 		case 18: drive = D[1]; break;
@@ -159,9 +161,9 @@ FDDController = function()
 
       if (diskEnabled)
       {
-        if (((a & 0x80) != 0) && ((data & 0x80) != 0))
+        if (((a & 0x80) != 0) && ((d & 0x80) != 0))
         {
-          if (data & 0x40) {
+          if (d & 0x40) {
             drive.stepPlus();
 	    }
           else {
@@ -170,25 +172,25 @@ FDDController = function()
         }
 
         if (( a & 0x200/*WRMARKER*/) != 0) {
-          drive.setMarker( (data & 0x200/*WRMARKER*/)!=0 );
+          drive.setMarker( (d & 0x200/*WRMARKER*/)!=0 );
         }
       }
-      if (data & 0x100) {
+      if (d & 0x100) {
         seekingMarker = true;
       }
 	  
 	  if (SMK) {
-		  isReadable = base.setMemoryModelByFDCBits(data);
+		  isReadable = base.setMemoryModelByFDCBits(d);
       }
 	  
-      controlReg = data;
+      controlReg = d;
 	}
 	
     else
 		if (C == 65114) {
 			seekingMarker = false;
 			if (diskEnabled)
-				drive.deferredWrite((controlReg >>> /*HEAD*/5) & 1, data);
+				drive.deferredWrite((controlReg >>> /*HEAD*/5) & 1, d);
 		} else
 			{ return false; }
     return true;

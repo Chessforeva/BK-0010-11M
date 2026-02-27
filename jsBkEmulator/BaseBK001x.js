@@ -854,7 +854,7 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
 	
     var /*int*/page = ia >>> 13;
     var /*int*/mapped = mmap[page] + ((ia & 0x1FFF) >>> 1);
-	var dL = data & 0xFF, dH = (data & 0xFF00), b = ((ia & 1) == 0);
+	var dL = d & 0xFF, dH = (d & 0xFF00), b = ((ia & 1) == 0);
 	
 	var Wo = ( b ? ((memory[mapped] & 0xFF00) | dL) : ((memory[mapped] & 0xFF) | dH) );    
     updatepixel(mapped,Wo);

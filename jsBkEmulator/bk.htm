@@ -398,6 +398,8 @@ var overJoystick=0;	// use arrow keys or touch buttons as joystick
 var soundOn=0;		// Sound Off
 var sound_sv = "none";	// Save last value
 
+var flag_timer_start_low = 0;	// If timer.start too low then frequent interrupts required
+
 // also:
 // ...onclick="pushKey(BK_key_code)"
 
@@ -782,6 +784,9 @@ if( FullScreen==5 ) {	// Return the main window
    var s="BK"+ (base.isM()?"11":"10");
    if(fdc.drives.length>0) s+=" FDD";
    if(SMK) s+=" SMK-512";
+   if(flag_timer_start_low) 
+		s+=' <div style="color:red"><i>(timer.start=' +
+		flag_timer_start_low + '?)</i></div>';
    Q.innerHTML = s;
    }
    

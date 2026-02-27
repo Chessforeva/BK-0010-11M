@@ -86,11 +86,11 @@ CPUTimer = function()
   function /*void*/setConfig(/*short*/data) {
     var /*int*/a = 128;
 
-    if ((data & 0x40) != 0) {
-      a *= 4;
+    if ( data & 0x40 ) {
+      a <<= 2;
     }
-    if ((data & 0x20) != 0) {
-      a *= 16;
+    if ( data & 0x20 ) {
+      a <<= 4;
     }
     
     period = a;
@@ -108,6 +108,8 @@ CPUTimer = function()
     if ( d < period) {
       return;
     }
+	
+	
     var /*long*/c = (d / period)|0;
 
     self.cycles += c * period;
@@ -121,33 +123,37 @@ CPUTimer = function()
     if ((config & 0x10) == 0) {
       return;
     }
-    
+   
+   flag_timer_start_low = (((count/start)>1) ? start : 0);		// If low then lags will be ...
+	
+   
     if (c >= (count & 0xFFFF))
     {
       if ((config & 0x4) != 0)
       {
-        config |= /*(short)*/0x80;
+        config |= 0x80;
       }
       if ((config & 0x2) == 0)
       {
         if ((config & 0x8) != 0)
         {
-          config &= /*(short)*/0xFFEF;
+          config = (config & 0xFFEF)>>>0;
           count = start;
           return;
         }
 
        if (start == 0) {
-          count = /*(short)(int)*/(count - c)&0xFFFF>>>0; 
+          count = ((count - c) & 0xFFFF )>>>0; 
         } else {
-          count = /*(short)(int)*/((start - (c - count)) % start)&0xFFFF>>>0;
+          count = (((start - (c - count)) % start) & 0xFFFF )>>>0;
         } 
 	
         return;
       }
     }
-    
-    count = /*(short)(int)*/(count - c)&0xFFFF>>>0; 
+  
+    count = ((count - c) & 0xFFFF )>>>0;
+  
   }
   
   return self;

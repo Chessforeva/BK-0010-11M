@@ -166,7 +166,7 @@ FloppyDisk = function( diskName, diskData, diskId )
           break;
         case 2:
           if (data & 0x10000) {
-            data &= 0xFFFF;
+            data = (data & 0xFFFF)>>>0;
             if (data == 41470)
             {
               state = 1;
@@ -194,9 +194,9 @@ FloppyDisk = function( diskName, diskData, diskId )
             var /*int*/w = 512 * (sector - 1 + (head * 10));
             var /*int*/m = k - 256;
             for (var /*int*/i = 0; i < 256; ++i) {
-              var /*int*/a = rawTrack[head][m++] & 0xFFFF;
+              var /*int*/a = (rawTrack[head][m++] & 0xFFFF) >>>0;
               imageTrack[w++] = /*(byte)*/(a >>> 8) & 0xFF;
-              imageTrack[w++] = /*(byte)*/a & 0xFF;
+              imageTrack[w++] = /*(byte)*/(a & 0xFF)>>>0;
             }
             state = 0;
             if (verbose) console.log("Sector converted");

@@ -110,3 +110,89 @@ SMK-512 Logic Cheat Sheet
    7  Override         1: Override (Muzzle) internal system ROM/RAM. 0: Listen-only mode.
  8-15 Ext Super-SMK    Standard SMK Extends page count beyond 512KB (some emulators)
 
+
+------------------------------------------
+setFDD11MModel mappings explained by AI:
+
+The critical key is understanding mapLongPage and the memory array:
+
+protected short[] memory = new short[368640];   // flat array of 16-bit WORDS
+protected void mapLongPage(int longSlot, int offset, boolean writeable) {
+    int shortSlot = longSlot << 2;     // each longSlot is 4 short slots
+    for(pageMask = 0; pageMask < 4; ++pageMask) {
+        this.mMap[pageMask + shortSlot] = offset;
+        offset += 1024;                // +1024 WORDS per sub-slot = 2KB each
+    }
+    ...
+}
+
+public void setFDD11MModel() {
+
+
+Each mapLongPage covers **4 x 1024 words = 4096 words = 8192 bytes = 8KB**.
+ This is exactly one BK physical page. 
+ The offset parameter is a **word index** into memory[], not a byte address and not a BK address-space value.
+
+The memory[] array is laid out as follows (proven by the named constants in the source):
+
+Word index    Named constant            Content
+___________________________________________________________________________
+
+00000         (RAM page 0)              Physical RAM page 0 (8KB)
+04096         (RAM page 1)              Physical RAM page 1 (8KB)
+08192         (RAM page 2)              Physical RAM page 2 - video (8KB)
+12288         (RAM page 3)              Physical RAM page 3 - video (8KB)
+16384         OF_RAMB10_120             Physical RAM page 4 (8KB)
+20480         OF_RAMB10_140             Physical RAM page 5 (8KB)
+24576         (RAM page 6)              Physical RAM page 6 (8KB)
+28672         (RAM page 7)              Physical RAM page 7 (8KB)
+32768         (RAM page 8)              Physical RAM page 8 - EXTENDED
+36864         (RAM page 9)              Physical RAM page 9 - EXTENDED
+40960         (RAM page 10)             Physical RAM page 10 - EXTENDED
+45056         (RAM page 11)             Physical RAM page 11 - EXTENDED
+49152         (RAM page 12)             Physical RAM page 12 - EXTENDED
+53248         (RAM page 13)             Physical RAM page 13 - EXTENDED
+57344         (RAM page 14)             Physical RAM page 14 - EXTENDED
+61440         (RAM page 15)             Physical RAM page 15 - EXTENDED
+65536         OF_ROMB10_100             BK-10 Monitor ROM  (monit10.rom)
+69632         OF_ROMBASIC10_120         BK-10 BASIC ROM segment 1 (basic10.rom)
+73728         OF_ROMBASIC10_140         BK-10 BASIC ROM segment 2
+77824         OF_ROMBASIC10_160         BK-10 BASIC ROM segment 3
+81920         OF_ROMB11M_140            BK-11M BOS/Monitor ROM (b11m_bos.rom)
+86016         OF_ROMB11M_120            BK-11M Extension ROM (b11m_ext.rom)
+90112         OF_ROMBASIC11M_1_100      BK-11M BASIC ROM bank 1 (bas11m_1.rom)
+94208         OF_ROMBASIC11M_0_100      BK-11M BASIC ROM bank 0 (bas11m_0.rom)
+102400        OF_ROMEXT                 FDD ROM or SMK ROM  (fdd.rom / smk512.rom)
+
+The pattern is exact: physical RAM page N starts at word index N x 4096.
+
+## The Full setFDD11MModel Mapping Explained
+
+BK Window | BK Addresses  | memory[] word index      | Physical meaning
+___________________________________________________________________________
+
+0         | 0x0000-0x1FFF | 0       (RAM page 0)     | Standard lower RAM  [R/W]
+1         | 0x2000-0x3FFF | 4096    (RAM page 1)     | Standard lower RAM  [R/W]
+2         | 0x4000-0x5FFF | 49152   (RAM page 12)    | Extended RAM page 12 [R/W]
+3         | 0x6000-0x7FFF | 53248   (RAM page 13)    | Extended RAM page 13 [R/W]
+4         | 0x8000-0x9FFF | 32768   (RAM page 8)     | Extended RAM page 8  [R/W]
+5         | 0xA000-0xBFFF | 36864   (RAM page 9)     | Extended RAM page 9  [R/W]
+6         | 0xC000-0xDFFF | 81920   = OF_ROMB11M_140 | BK-11M Monitor BOS ROM [R only]
+7         | 0xE000-0xFFFF | 102400  = OF_ROMEXT      | FDD ROM              [R only]
+
+LongPage = one BK 8KB physical bank = 4096 words
+
+public void setFDD11MModel() {
+    this.is11M = true;
+    this.mapLongPage(0, 0, true);
+    this.mapLongPage(1, 4096, true);
+    int addr = 49152;   // 0xC000 - extended RAM page 12 (word index 12 x 4096)
+    this.mapLongPage(2, addr, true);
+    this.mapLongPage(3, addr + 4096, true);   // page 13
+    addr = 32768;       // 0x8000 - extended RAM page 8  (word index  8 x 4096)
+    this.mapLongPage(4, addr, true);
+    this.mapLongPage(5, addr + 4096, true);   // page 9
+    this.mapLongPage(6, 81920, false);        // OF_ROMB11M_140 - BK-11M BOS Monitor ROM
+    this.mapLongPage(7, 102400, false);       // OF_ROMEXT      - FDD ROM
+    this.page160length = 4096;
+}
