@@ -682,7 +682,8 @@ function smk_writeByteAsWord(/*int*/ia, /*short*/d) {
 		}
 
 	if (C == 65460) {
-		scrollReg = ((scrollReg & 0xFF00) | dH);
+		var mask = (!b ? 0xFF00 : 0xFF);
+		scrollReg = ((d & 0x2FF) | mask); 
 		scrdefs();
 		return true;
 	}
