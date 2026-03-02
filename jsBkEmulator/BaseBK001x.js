@@ -682,8 +682,11 @@ function smk_writeByteAsWord(/*int*/ia, /*short*/d) {
 		}
 
 	if (C == 65460) {
-		var mask = (!b ? 0xFF00 : 0xFF);
-		scrollReg = ((d & 0x2FF) | mask); 
+		if(b) {
+			scrollReg = ((scrollReg & 0xFF00) | dL) & 0x2FF;
+		} else {
+			scrollReg = ((scrollReg & 0xFF) | dH) & 0x2FF;
+		}
 		scrdefs();
 		return true;
 	}
@@ -926,7 +929,11 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
     }
 
     if (C == 65460) {
-      scrollReg = ((scrollReg & 0xFF00) | dH);
+      if (b) {
+        scrollReg = ((scrollReg & 0xFF00) | dL) & 0x2FF;
+      } else {
+        scrollReg = ((scrollReg & 0xFF) | dH) & 0x2FF;
+      }
       scrdefs();
       return true;
     }
