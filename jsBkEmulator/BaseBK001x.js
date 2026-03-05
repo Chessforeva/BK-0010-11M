@@ -652,6 +652,17 @@ function smk_writeByteAsWord(/*int*/ia, /*short*/d) {
 		}
 	}
 	
+	if ((mmapWriteable & pageMask) != 0) {
+
+        if (  ia < (0xE000 + page160length) &&
+            (mmapWriteable & pageMask) != 0) {
+			
+			memory[mapped] = Wo;
+            return true;
+        }
+
+    }
+	
 	if (C == 65484)
 		{
 		if (b) {
