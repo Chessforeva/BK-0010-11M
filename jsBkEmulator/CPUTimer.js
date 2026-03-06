@@ -63,7 +63,6 @@ CPUTimer = function()
     switch (addr) {
     case 65478 /*177706*/:
       start = data&0xFFFF>>>0;
-
       return true;
     case 65480 /*177710*/:
       return true;

@@ -12,12 +12,11 @@
 <!--
 BK-0010-01, BK-0011M emulator HTML5 javascript
 
-version 1.j
+version 2.0
 (07.2021 , added debug mode on F11
  12.2022 , small bugfix for sound
  02.2026 , fullscreen exit to the main window, csave
- 02.2026 , a beta version of smk-512 without HDD
-
+ 03.2026 , smk-512 with HDD
  )
 freeware for deployment on any font
 
@@ -62,7 +61,7 @@ var WindoW = winWiHi();
         text-align: center; font: 12pt bold; color: black;"
 >
 <div id="filesloaded" style="display:inline">
-Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
+Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
 </div>
 
 <canvas id="BK_canvas" width="512px" height="256px" class="disSel"
@@ -90,10 +89,9 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="FDD11SMK">BK0011M+SMK512...a file</option>  
   <option value="Alx0A330">Alex(BK10 DBASIC FDD find)</option>
   <option value="Alx1A330">AlexANDOS330(BK11)</option>
-  <option value="Alx2A330">Alex(BK11M SMK512)</option> 
-  
-  <option value="SMK_mkdos">SMK MKDOS</option>
-  
+  <option value="Alx2A330">Alex(BK11M SMK512)</option>
+  <option value="CSISmk">BK11M CSI-DOS SMK512</option> 
+  <option value="SMK_mkdos">SMK512 MKDOS</option>
   <option value="CSIMir">CSI-DOS 3.32 MIR MUSIC</option>
   <option value="MPage">CSI-DOS A:B:samples</option>
   <option value="Mega">MegaDemo COVOX MUSIC</option>
@@ -111,7 +109,11 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
   <option value="CVXS">ANDOS Covox demos</option>
   <option value="MzRz">MusicRelease demo</option>
   <option value="Lecsic">Lecsicon music demo</option>  
-  <option value="Ecsit">Ecsit (emul-bugz-todo:)</option>
+  <option value="Ecsit">Ecsit music demo</option>
+  <option value="FAY">FAY music demo</option>
+  <option value="smk_tired">Bit tired demo</option>
+  <option value="smk_odnzd">Odnazhdi demo</option>
+  <option value="smk_bulka">Elektrobulka demo</option>
   <option value="POP">Prince Of Persia game</option>
   <option value="MiCo">Miami Cobra racing</option>
   <option value="BKMna">BK-Mania 97,96 A:B:</option>
@@ -343,8 +345,9 @@ Drop a .COD .BIN .BKD .IMG .ROM file here, or zipped one
 <script src="cpu_K1801VM1.js"></script>
 <script src="cpu_Disasm.js"></script>
 <script src="FDDController.js"></script>
-<script src="HDDController.js"></script>
 <script src="FloppyDisk.js"></script>
+<script src="HDDController.js"></script>
+<script src="HDD.js"></script>
 <script src="DBG.js"></script>
 <script src="BaseBK001x.js"></script>
 <script src="BK_MAIN.js"></script>
@@ -446,15 +449,16 @@ function userBoot() {
  case "FDD11SMK": base.setSMK11Model(); startdisks(1,[],1); break;
  case "Alx0A330": startdisks(0,["ALEXSOFT.zip"],1); break;
  case "Alx1A330": startdisks(1,["ALEXSOFT.zip"],1); break;
- case "Alx2A330": base.setSMK11Model(); startdisks(1,["ALEXSOFT.zip"],1); break; 
+ case "Alx2A330": base.setSMK11Model(); startdisks(1,["ALEXSOFT.zip"],1); break;
+ case "CSISmk": base.setSMK11Model(); startdisks(1,["EMPTYCSI.zip"],1); sColor(9); break;
  case "SMK_mkdos": base.setSMK11Model(); startdisks(1,["MK_DOS.zip"],1); sHelper(3,80); sHelper(5,8); break;
  case "CSIMir": startdisks(1,["CSIMIR.zip"],1); sColor(9); sHelper(5,1); sHelper(15,2); break;
  case "MPage": startdisks(1,["MPAGE1.zip","MPAGE2.zip"],1); sColor(9); break;
  case "Mega": startdisks(1,["TDR.zip"],1); sColor(3); sHelper(5,4); sound_sv="cvx"; break;
  case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); sHelper(5,1); sHelper(24,2); break;
- case "HNY2020": startdisks(1,["hny2020.zip"],1); sColor(3); sHelper(5,6); sHelper(24,5); break;  
+ case "HNY2020": startdisks(1,["hny2020.zip"],1); sColor(3); sHelper(5,6); sHelper(24,5); base.perf=1; break;  
  case "CSqld": startdisks(1,["csquel.zip"],1); sColor(3); sHelper(5,6); sHelper(24,5); break;
- case "Covid": startdisks(1,["COVID.zip"],1); sHelper(5,1); sound_sv="8910mx"; break;
+ case "Covid": startdisks(1,["COVID.zip"],1); sHelper(5,1); sound_sv="8910mx"; base.perf=1; break;
  case "AODOS": startdisks(1,["AODOS.zip"],1); break;
  case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
  case "Robcop": startdisks(1,["ROBOCOP.zip"],1); break;
@@ -467,7 +471,15 @@ function userBoot() {
  case "Lecsic": base.setSMK11Model(); startdisks(1,["lecsicon.zip"],1); cpu.reset();
 		sColor(9); sHelper(5,6); sound_sv="8910mx"; break;
  case "Ecsit": base.setSMK11Model(); startdisks(1,["ECSIT.zip"],1); cpu.reset();
-		sColor(9); sHelper(5,6); break;
+		sColor(9); sHelper(5,6); base.perf=1; break;
+ case "FAY": startdisks(1,["FAY.zip"],1);
+		sColor(9); sHelper(5,6); sHelper(12,2); break;
+ case "smk_tired": base.setSMK11Model(); startdisks(1,["TIRED.zip"],1);
+		sColor(9); sHelper(5,6); sHelper(12,2); break;
+ case "smk_odnzd": base.setSMK11Model(); starthdd(["odnazdi.zip"]);
+		sColor(9); sHelper(5,6); base.perf=1; sHelper(13,2); break;
+ case "smk_bulka": base.setSMK11Model(); starthdd(["el_bulka.zip"]);
+		sColor(9); sHelper(5,8); base.perf=2; sHelper(12,2); break;
  case "POP": startdisks(0,["PRINCE.zip"],1); break;
  case "MiCo": startdisks(1,["MK317.zip","MIAMI.zip"],1); break; 
  case "BKMna": startdisks(1,["BKMANIA97.zip","BKMANIA96.zip"],1); break;
@@ -493,7 +505,7 @@ function _starterhelper(ch) {
   case 6:  GE("userspeed").value = "CS3e"; userSpeed(); break;
   case 7:  GE("userspeed").value = "C50K4"; userSpeed(); break;
   case 8:  GE("userspeed").value = "C200K4"; userSpeed(); break;
-  case 80:  cpu.reset(); break;
+  case 80: cpu.reset(); break;
  }
 }
 
@@ -509,6 +521,22 @@ function startdisks(isM,zips,rst) {
 	if(zips.length) {
 		if(base.dsks) fdc.shutdown();
 		LOADDSK=zips;GoDisks();
+		}
+	var o = base.FakeTape;
+	o.prep = false; o.filename=""; o.bytes=[];
+	if(rst) cpu.reset();
+}
+
+function starthdd(zips,rst) {
+	boot_parms.isM = 1;
+	boot_parms.rst = rst;
+	boot_parms.ck = 1;
+	
+	if(rst) base.setSMK11Model();
+	if(zips.length) {
+		if(base.dsks) fdc.shutdown();
+		LOADDSK=["EMPTY.zip"].concat(zips);
+		GoDisks();
 		}
 	var o = base.FakeTape;
 	o.prep = false; o.filename=""; o.bytes=[];
@@ -805,6 +833,11 @@ if( FullScreen==5 ) {	// Return the main window
 			o=fdc.drives[i];
 			s+=b1+b2+i+b3+"["+o.diskId+"]"+b4+i+b5+o.imageName+"  ";
 			}
+		o=hdc.hdd;
+		if(o!=null) {
+			i = 100;
+			s+=b1+b2+i+b3+"[C:]"+b4+i+b5+o.imageName+"  ";
+			}
 		}
 	if(s.length) Q.innerHTML = s;
 	}
@@ -862,9 +895,18 @@ function kbShow() {
 
 function download(i) {
 
-    var a = GE("DOWNLOAD"+i), disk = fdc.drives[i];
-    var data = disk.reSized819200();
-    var file = new Blob([data], {type: "text/plain"});
+    var a = GE("DOWNLOAD"+i);
+	var disk, data;
+	if(i==100) {
+	 disk = hdc.hdd;
+     data = hdc.hdd.hddImage;
+	}
+	else {
+	 disk = fdc.drives[i];
+     data = disk.reSized819200();
+	}
+	
+	var file = new Blob([data], {type: "text/plain"});
     a.href = URL.createObjectURL(file);
 
     a.download = "nw_"+disk.imageName;

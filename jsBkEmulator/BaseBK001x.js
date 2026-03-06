@@ -9,7 +9,7 @@
 BaseBK001x = function()
 {
   var self = this;
-  
+    
   var /*short[106496]*/memory = [];
 
   var /*int[8]*/mmap = [];
@@ -27,7 +27,6 @@ BaseBK001x = function()
 
   var /*int*/videoMode=0;
   var /*boolean*/is11M;
-
 
   //------------- [smk start 1]
   // SMK-512 case:
@@ -112,7 +111,21 @@ BaseBK001x = function()
   this.isM = function() { return is11M; }
   
   this.remap = false;
-	      
+
+
+/*
+
+ Solving performance issues
+  
+  bit
+  0		skipps each 254 scrdefs in looped smk_writeByteAsWord
+  
+*/
+  
+  this.perf = 0;			// this ackward variable improves performance for individual known cases
+  var perf_0_tck = 0;
+  var perf_1_tck = 0;
+  
   this.minimizeCycles = function()
   {
    timer.updateTimer();
@@ -397,8 +410,8 @@ function doClassic11MMap(data) {
 function setSMKMode(data, force) {
 
     var d = (data & 0xFFFF)>>>0;
-
-    if (!SMK) return false;
+	
+	if(!SMK) return;
 
     var doUpdate = force;
 
@@ -486,8 +499,8 @@ function setSMKMode(data, force) {
 
             page160length = 8192;
 
-            mapLongPage(5, (seg + 12288) >>> 0, true);
-            mapLongPage(6, seg >>> 0, true);
+            mapLongPage(5, seg + 12288, true);
+            mapLongPage(6, seg + 0, true);
             mapLongPage(7, 102400, false);
 
             mMap[30] = mMap[28];
@@ -543,7 +556,9 @@ this.setMemoryModelByFDCBits = function(data) {
          return isReadable;
       }
    } 
- 
+
+
+
 function smk_readWord(/*int*/ia, /*QBusReadDTO*/ result) {
 
 	var C = (ia & 0xFFFE)>>>0; /*short*/
@@ -551,28 +566,28 @@ function smk_readWord(/*int*/ia, /*QBusReadDTO*/ result) {
     var pageMask = (1 << page) >>> 0;
 
     var mapped = (mMap[page] + ((ia & 2047) >>> 1)) >>> 0;
-
+	
     if ((mmapSpecial & pageMask) == 0) {
 
         if ( ia < (0xE000 + page160length) &&
             (mmapReadable & pageMask) != 0) {
 				
             result.value = (memory[mapped] & 0xFFFF)>>>0;
-            return true;
+			return true;
         }
 
-        return false; // super.readWord
-    } 
-
+    }
+	
 	result.value = 0;
-	var replied = false;
-		
+	var rp = false;
+	
 	for (var /*QBusSlave*/ pli in plugins) {
 			var plugin = plugins[pli];
 			var base = plugin.getBaseAddress;
 			if (base <= ia) {
 				if (((ia - base) >>>1) < plugin.getNumWords) {
-					replied |= plugin.readWord(ia, result);
+					rp |= plugin.readWord(ia, rdDto);
+					result.value |= rdDto.value;
 					break;
 				}
 			}
@@ -580,8 +595,7 @@ function smk_readWord(/*int*/ia, /*QBusReadDTO*/ result) {
 	
 	if ( (mmapReadable & pageMask) != 0 &&
             ia < (0xE000 + page160length) ) {
-			result.value |= ((memory[mapped] & 0xFFFF)>>>0);
-
+		result.value |= ((memory[mapped] & 0xFFFF)>>>0);
 		return true;
 	}
 		
@@ -596,7 +610,7 @@ function smk_readWord(/*int*/ia, /*QBusReadDTO*/ result) {
 
 		result.value |= /*(short)*/tape | (keyboard.getKeyDown() ? 0 : 64) 
 			| (is11M ? 49280 : 32912) | (syswritereg & 8);
-		syswritereg &= 65527; 
+		syswritereg = (syswritereg & 65527) >>> 0; 
 		return true;
 	}
 
@@ -605,7 +619,7 @@ function smk_readWord(/*int*/ia, /*QBusReadDTO*/ result) {
 		return true;
 	}
 
-	return (replied ? true : false);
+	return (rp ? true : false);
     
 }
 
@@ -616,7 +630,7 @@ function smk_writeByteAsWord(/*int*/ia, /*short*/d) {
     var page = ia >>> 11;
     var pageMask = (1 << page) >>> 0;
 	var dL = d & 0xFF, dH = (d & 0xFF00), b = ((ia & 1) == 0);
-
+	
     var mapped = (mMap[page] + ((ia & 2047) >>> 1)) >>> 0;
 
 	var Wo = ( b ? ((memory[mapped] & 0xFF00) | dL) : ((memory[mapped] & 0xFF) | dH) );
@@ -638,7 +652,13 @@ function smk_writeByteAsWord(/*int*/ia, /*short*/d) {
     if (is11M && (C == 65458))
     { 
       paletteReg = ( b ? ((paletteReg & 0xFF00) | dL) : ((paletteReg & 0xFF) | dH ) );
-      scrdefs();
+      if( self.perf & 1) {
+		  if((perf_0_tck++)>=0xFF) {
+			  perf_0_tck = 0;
+			  scrdefs();
+		  }
+	  }
+	  else scrdefs();
       return true;
     }
 	
@@ -786,6 +806,15 @@ function smk_writeWord(/*int*/ia, /*short*/d) {
     return (wW);
 }
 
+this.smk_readWordBrute = function(/*int*/addr ) {
+	
+    var page = addr >>> 11;
+    var pageMask = (1 << page) >>> 0;
+
+    var mapped = (mMap[page] + ((addr & 2047) >>> 1)) >>> 0;
+	return memory[mapped];
+}
+
 this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
 	
     var page = addr >>> 11;
@@ -887,10 +916,16 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
     var C = (ia & 0xFFFE)>>>0; /*short*/
     
     if (is11M && (C == 65458))
-    { 
+    {
       paletteReg = ( b ? ((paletteReg & 0xFF00) | dL) : ((paletteReg & 0xFF) | dH ) );
-      scrdefs();
-      return true;
+      if( self.perf & 1) {
+		  if((perf_0_tck++)>=0xFF) {
+			  perf_0_tck = 0;
+			  scrdefs();
+		  }
+	  }
+	  else scrdefs();
+	  return true;
     }
 
     for (var /*QBusSlave*/ pli in plugins) {
@@ -939,7 +974,7 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
       return true;
     }
 
-    if (C == 65460) {
+    if (C == 65460) {			  
       if (b) {
         scrollReg = ((scrollReg & 0xFF00) | dL) & 0x2FF;
       } else {
@@ -1155,6 +1190,13 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
   
   function scrdefs()
   {
+	if( self.perf & 2) {
+		if((perf_1_tck++)>=0xF) {
+			  perf_1_tck = 0;
+		}
+		else return;
+	}
+	  
     if (!is11M) Cmap = videoMode << 11;
     else if (videoMode == 0) Cmap = 0;
     else Cmap = (2 + (paletteReg >>> 8 & 0xF)) << 11;
@@ -1194,6 +1236,7 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
   
   this.DRAW = function()
   {
+  
   CS = document.getElementById("BK_canvas");
   if(CS==null) return 0;
   
@@ -1212,6 +1255,7 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
    }
  
    this.updCanvas();
+   
    return 1;
   }
   
@@ -1222,6 +1266,8 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
   
   /* fast loader for BIN files on BK10, avoid monitor */
   this.LoadBinFast = function() {
+	  //                         0140000     040000
+	  // resetAddr = (short)(is11M ? 0xC000 : 0x4000); 
 	var r = cpu.regs;
 	r[0]=32;r[1]=208;r[2]=65535;
 	r[3]=33242;r[4]=77;r[5]=39998;
@@ -1393,7 +1439,22 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
         self.writeWord(40962, 57344);
 	}
   }
-  
+
+  // Set the HDD disk
+  this.setHDDDisk = function(filename, bytes) {
+	self.addHDD();
+	for (var /*QBusSlave*/ pli in plugins) {
+		var plugin = plugins[pli];
+		if(plugin.getBaseAddress == 65504) {
+			var hdd = new HDD( filename, bytes );
+			hdd.mount();
+			hdc.mount( hdd );
+			plugins[pli] = hdc;	// use a real HDD image
+		}
+	}
+  }
+
+ 
   this.keyboard_punch = function(key) { keyboard.punch(key); }
   this.keyboard_setKeyDown = function(dn) { keyboard.setKeyDown(dn); }
   this.joystick_setState =  function(state) { joystick.setState(state); }

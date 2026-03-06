@@ -116,7 +116,9 @@ K1801VM1 = function()
     psw = 224;
     
     /* starting address Bk10 = o100360, Bk11m = o140340*/
+	
     base.readWord(65486, readDTO);
+
     r[7] = /*(short)*/(readDTO.value & 0xFF00)>>>0;
 
     state = CPUState.NORMAL;
@@ -883,9 +885,11 @@ K1801VM1 = function()
         note("trap to " + a.toString(8));
 	
       cycles(56);
-      if (base.writeWord(r[6] = /*(short)*/(r[6] - 2), psw)&0xFFFF>>>0)
+	  r[6] = (r[6] - 2)&0xFFFF>>>0;
+      if (base.writeWord(r[6], psw)&0xFFFF>>>0)
       {
-        if ((base.writeWord(r[6] = /*(short)*/(r[6] - 2), r[7])&0xFFFF>>>0) && 
+		r[6] = (r[6] - 2)&0xFFFF>>>0;  
+        if ((base.writeWord(r[6], r[7])&0xFFFF>>>0) && 
           (base.readWord(a, readDTO))) {
           r[7] = readDTO.value;
           if (base.readWord(/*(short)*/(a + 2)&0xFFFF>>>0, readDTO))
@@ -999,12 +1003,13 @@ K1801VM1 = function()
         return;
       }
       r[7] = readDTO.value;
-      if (!(base.readWord(r[6] = /*(short)*/(r[6] + 2)&0xFFFF>>>0, readDTO))) {
+      r[6] = (r[6] + 2)&0xFFFF>>>0;
+      if (!(base.readWord(r[6], readDTO))) {
         busError();
         return;
       }
       psw = readDTO.value;
-      r[6] = /*(short)*/(r[6] + 2)&0xFFFF>>>0;
+      r[6] = (r[6] + 2)&0xFFFF>>>0;
       break;
     case 12: /*JMP*/
       dst = insn & 0x3F;
@@ -1050,7 +1055,8 @@ K1801VM1 = function()
         return;
       }
       cycles(20);
-      if (!(base.writeWord(r[6] = /*(short)*/(r[6] - 2)&0xFFFF>>>0, r[src])))
+	  r[6] = (r[6] - 2)&0xFFFF>>>0;
+      if (!(base.writeWord(r[6], r[src])))
       {
         busError();
         return;

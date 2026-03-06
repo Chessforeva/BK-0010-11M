@@ -52,13 +52,13 @@ function FPSinit()
 	}
  else setTimeout('FPSinit()',999);
 }
-
 	
 //--------------------
 // The Main Loop
 //--------------------
 function FPSloop( onetime )
 {
+
  if(!dbg.active) {
 
   if( onetime || !BK_speed.anim) {
@@ -81,7 +81,6 @@ function FPSloop( onetime )
 		break;
 		}
 	if(tp && base.FakeTape.prep) base.TapeEMT36();
-
 	}
 	
   base.sound_push(); // sounds
@@ -106,9 +105,10 @@ function FPSloop( onetime )
   if(key<=0) BKautokeys(0);
   
   base.irq();	// may be little to rare
-      
+  
   base.updCanvas();	// little faster ;)
   //base.DRAW();
+  
   }
   }
   
@@ -117,6 +117,8 @@ function FPSloop( onetime )
  if(!onetime) setTimeout('FPSloop()',(1000/BK_speed.fps)|0);	// next loop after
   
 }
+
+
 
 Gbin.onGot=function(filename, bytes)
 	{
@@ -155,8 +157,17 @@ Gbin.onGot=function(filename, bytes)
 			GoDisks();	// read next disk
 			}
 		}
+	if(f.indexOf(".HDI")>0) {
+		if(!SMK) base.setSMK11Model();
+		base.setHDDDisk(filename,bytes);
+		var needA = (fdc.drives.length==0);
+		if(needA) {
+			LOADDSK = ["EMPTY.zip"];
+			GoDisks();	// read emty disk to start it working
+			cpu.reset();
+			}
+		}
 	}
-
 
 /* keypress processing */
 

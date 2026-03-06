@@ -16,7 +16,7 @@ FDDController = function()
   
   self.drives = D;
 
-  /*int*/this.getBaseAddress = 65112;
+  /*int*/this.getBaseAddress = 65112;		// o177130
 
   /*int*/this.getNumWords = 2;
 
@@ -181,6 +181,8 @@ FDDController = function()
 	  
 	  if (SMK) {
 		  isReadable = base.setMemoryModelByFDCBits(d);
+		  //console.log("Page:" + (d & 31) );
+		  
       }
 	  
       controlReg = d;
