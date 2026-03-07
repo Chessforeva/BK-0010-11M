@@ -68,6 +68,11 @@ cheatings = new function(){
  if(n=="TARZAN.BIN") base.writeWord(1006,5); // set always = 5
  if(n=="JETMAN.BIN") base.writeWord(4240,9); // set always = 9
  if(n=="F15.BIN") base.writeWord(844,8); // set always = 8
+ if(n=="POPCORN.BIN") {
+	 base.writeWord(2944,8); // set always = 8
+	 base.writeWord(2956,8);
+ }
+ 
  if(dskB=="revolt.bkd")
 	if(base.readWORD(596)==2) base.writeWord(596,3); // set always = 3
  if(dskA=="PRNCE.BKD")
