@@ -75,6 +75,7 @@ SoundRenderer = function()
 	adjspd=0;
 	ofs = 0;
 	Bclr = 0;
+	self.last = [0,0,0];
   }
 
   this.clear = function(a) {

@@ -203,7 +203,8 @@ Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
   <option value="#MiCo">MiamiCobra racing ★</option>
   <option value="#Robcop">Robocop ✰</option>
   <option value="#Revolt">Revolt ✰</option>
-  <option value="pong.zip">Pong</option>
+  <option value="pong.zip">Pong ✰</option>
+  <option value="#desolate">Desolate ✰</option>
   <option value="bk3da.zip">bk3D</option>
   <option value="popcorn.zip">Popc(arkanoid)</option>  
   <option value="navvy.zip">Navvy(digger)</option>
@@ -658,6 +659,9 @@ if(f.charAt(0)=="#") {
     break;
  case "#Revolt":  startdisks(1,["MK317.zip","REVOLT.zip"],1);
     sHelper(5,6); sHelper(18,90); Touch_Buttons = false;
+    break;
+ case "#desolate":  startdisks(1,["desolate.zip"],1);
+    sHelper(5,6); Touch_Buttons = false;
     break;
  }
 }
