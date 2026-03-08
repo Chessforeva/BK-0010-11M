@@ -38,6 +38,8 @@ SoundRenderer = function()
   self.cycles = 0;
   self.initpause = 0;	// pause, if too slow
   
+  self.last = [0,0,0];
+  
   this.setSynth = function(S) { synth = S; }
   
   this.setSound = function(on) {
@@ -131,12 +133,14 @@ SoundRenderer = function()
 		}
 
 	  // smooth sound
-	 var last = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));		// the lasting sound cases
+	 self.last[C] = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));		// the lasting sound cases
+	 if(c12) self.last[1]=self.last[C];			 
+			 
 	 if(Bz) {
 				// little lasting sound, if emulator too slow
 		while(j<Sz) {
-			if(c12) O2[j]=last;
-			O[j++]=last;
+			if(c12) O2[j]=self.last[1];
+			O[j++]=self.last[C];
 			}
 		}
 		
@@ -145,7 +149,7 @@ SoundRenderer = function()
 	 if(Bclr) {
 		switch(Bclr) {
 		case 1: if(j<Sz) clear2(); break;	// if nothing to play, clear
-		case 2: if(last==0) clear2(); break;	// if last sound is 0, also clear
+		case 2: if(self.last[C]==0) clear2(); break;	// if last sound is 0, also clear
 		}
 	  }
 	 }
