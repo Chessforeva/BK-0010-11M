@@ -375,7 +375,7 @@ function GE(id) { return document.getElementById(id); }
 var FullScreen = 0;	// Ctrl+Enter switch to FullScreen mode
 var LOADDSK = [];	// to know disks to load
 
-var GAME = { adv:'', name:'' };		// Some good cases deserve more attention
+var GAME = { adv:'', name:'', flags:0 };		// Some good cases deserve more attention
 
 // prevent selections
 window.oncontextmenu = function(e) {
@@ -530,10 +530,10 @@ function _starterhelper(ch) {
 function _add_gm_adv(ch) {
  var s = '';
  switch(ch) {
-  case 1:  s+='<div style="font-size:30px"><a href="https://bk.grfgames.com" '+
+  case 1:  s+='<div style="font-size:24px"><a href="https://bk.grfgames.com" '+
     'target="blank">https://bk.grfgames.com</a></div>';
 	break;
-  case 2:  s+='<div style="font-size:30px"><a href="https://csi.pdp-11.ru" '+
+  case 2:  s+='<div style="font-size:24px"><a href="https://csi.pdp-11.ru" '+
     'target="blank">https://csi.pdp-11.ru</a></div>';
 	break; }
  GAME.adv = s;
@@ -644,8 +644,9 @@ if(f.charAt(0)=="#") {
     break;
  case "#prince2":
     base.setSMK11Model(); startdisks(1,["POP.zip"],1); sColor(9); sHelper(5,8); sound_sv="8910c3";
-    GAME.name = "Prince Of Persia"; _add_gm_adv(1);
-    GAME.adv += '<div style="font-size:16px;"><br>Adjust speed and sound.<br>'+
+    GAME.name = "POP"; _add_gm_adv(1);
+    GAME.adv += '<div style="font-size:16px;"><br>Adjust speed and sound. '+
+    '<div id="POPLVL" style="display:inline"></div><br>'+
     'Use arrow keys + space + LeftALT to move.<br>'+
     'Use LeftALT + down  to pick up the sword.<div>';
 	Touch_Buttons = false;

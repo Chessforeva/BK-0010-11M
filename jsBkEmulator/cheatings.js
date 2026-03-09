@@ -24,11 +24,17 @@ cheatings = new function(){
 	
  var lv_dmp = {c:0,a:[]};
  var lv_cht = [];
-	
+ 	
  this.livesfinder = function() {
  
   var a=lv_dmp;
-  a.a[a.c++] = read16dump();
+  a.a[a.c] = read16dump();
+  var memChr = prep_arr_str(a.a[a.c]);
+  //
+  // to look the dump into Developers Tools of the browser
+  console.log(memChr);
+  //
+  a.c++;
   if(a.c==3) {
 	var f=0, s="\n";
 	lv_cht = [];
@@ -40,8 +46,19 @@ cheatings = new function(){
 		 console.log(s);
 		}
 	if(f) alert("Found "+f+" addresses, cheating now!" + s);
+	else alert("Found nothing.");
 	a.c=0;
 	}
+  else alert('saved RAM dump: ' + a.c + '. of 3' );
+
+ }
+ 
+ function prep_arr_str( arr ) {
+	var b = [];
+	for(var i=0;i<arr.length;i++) {
+		b[i]="" + (i<<1) + ": " + arr[i];
+	}
+	return b.join('\n');
  }
  
  function livescheat() {
@@ -72,6 +89,13 @@ cheatings = new function(){
 	 base.writeWord(2944,8); // set always = 8
 	 base.writeWord(2956,8);
  }
+ if(GAME.name.length && GAME.name == "POP") {
+	 if((GAME.flags&1)==0 && base.readWORD(2216)==1) {
+       GAME.flags|=1;
+       var Q = GE("POPLVL");
+	   if(Q!=null) Q.innerHTML = _POP_prep_list();
+	 }
+ }
  
  if(dskB=="revolt.bkd")
 	if(base.readWORD(596)==2) base.writeWord(596,3); // set always = 3
@@ -85,10 +109,28 @@ cheatings = new function(){
 
  }
  
- return this;
+ return self;
 }
+
+
 
  // ...cheat like this
 setInterval('cheatings.hack()',8000);
 
 
+
+// Prince of persia level adjustments
+function _POP_prep_list() {
+ var s = '<select id="POPLVLsel" title="Select starting level" onchange="_POP_selected()">';
+ for(var l=1;l<=14;l++) s+='<option value="'+l+'">Level '+l+'</option>';
+ s+='</select>';
+ return s;
+}
+
+// Prince of persia level adjustments
+function _POP_selected() {
+ var q = GE("POPLVLsel"), v = q.value;
+ base.writeWord(2216,parseInt(v));
+ var Q = GE("POPLVL");		// remove selector
+ Q.innerHTML = '';
+}
