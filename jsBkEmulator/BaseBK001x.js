@@ -1471,9 +1471,8 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
 	if(synthpaused) srend.initpause = 3333;
 	else if(!soundOn || (!synthOn) || covoxOn) srend.initpause = 0;
 	}
-	this.sound_clear_allow = function(yn) {
-	srend.allowClear = yn;
-    }
+  this.sound_clear_allow = function(yn) { srend.allowClear = yn; }
+  this.setSoundLasting = function(N) { srend.sound_last = N; }
   this.getSoundGuess = function() { return synth_guess; }
   this.setDirtyCovox = function() { srend.dirty = true; }
   

@@ -38,7 +38,9 @@ SoundRenderer = function()
   self.cycles = 0;
   self.initpause = 0;	// pause, if too slow
   
-  self.last = [0,0,0];
+  var last = [0,0,0];	// lasting sound
+  var Bzc = 0;			// 3 loops only
+  this.sound_last = 1;	// 1 x sample ...
   
   this.setSynth = function(S) { synth = S; }
   
@@ -68,6 +70,31 @@ SoundRenderer = function()
 	}
   
   }
+ 
+  // Claude suggested noise filter for Covox samples
+  //  
+  // Stage 1: One-pole IIR low-pass (runs before push to AudioContext)
+  // alpha ~0.25 for 48kHz = ~600Hz smoothing, tune to taste
+  var Fp = 128;	// previous
+  function lowpass(x) {
+    Fp += 0.25 * (x - Fp);
+    return Fp;
+  }
+
+  // Stage 2: Delta clipper — hard cap on how fast signal can jump per sample
+  var Fl = 128;	// last
+  function deltaClip(x) {
+    var d = x - Fp;
+    if ( (d>=0 ? d : -d) > 25/*MAX_DELTA*/) {
+      Fl += (d>=0 ? 1 : -1) * 25/*MAX_DELTA in -255..255 scale*/;
+    } else Fl = x;
+    return Fl;
+  }
+
+  // Use them in sequence on each value:
+  function FilterNoise(raw) {
+    return deltaClip(lowpass(raw))|0;
+  }
   
   function clear2() {
 	if(!self.initpause) { B = []; Bpos = 0; Bz = 0; }
@@ -75,7 +102,7 @@ SoundRenderer = function()
 	adjspd=0;
 	ofs = 0;
 	Bclr = 0;
-	self.last = [0,0,0];
+	last = [0,0,0];
   }
 
   this.clear = function(a) {
@@ -134,23 +161,26 @@ SoundRenderer = function()
 		}
 
 	  // smooth sound
-	 self.last[C] = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));		// the lasting sound cases
-	 if(c12) self.last[1]=self.last[C];			 
+	 last[C] = (p==0 ? 0 :(Chan==1 ? B[p-1] : B[p-1][C]));		// the lasting sound cases
+	 if(c12) last[1]=last[C];			 
 			 
 	 if(Bz) {
 				// little lasting sound, if emulator too slow
 		while(j<Sz) {
-			if(c12) O2[j]=self.last[1];
-			O[j++]=self.last[C];
+			if(c12) O2[j]=last[1];
+			O[j++]=last[C];
 			}
+		Bzc = (++Bzc)&3;
+		if(!Bzc) last = [0,0,0];
 		}
+	 else Bzc=0;
 		
 	 if(C==(Chan-1)) {		// adjust counters and buffers
 		
 	 if(Bclr) {
 		switch(Bclr) {
 		case 1: if(j<Sz) clear2(); break;	// if nothing to play, clear
-		case 2: if(self.last[C]==0) clear2(); break;	// if last sound is 0, also clear
+		case 2: if(last[C]==0) clear2(); break;	// if last sound is 0, also clear
 		}
 	  }
 	 }
@@ -262,9 +292,10 @@ SoundRenderer = function()
     Chan = (synth.On && !synth.mixed ? 3 : 1);
     if(Chan!=q) clear2();
     
- /* The correct float values should be [-1.0 ... 1.0], but ok anyway. */
- 
-    B.push(g);
+ /* The correct float values should be [-1.0 ... 1.0],
+     but this [-255 ... 255] sounds much better. */
+ 	
+    for( var i=0; i<self.sound_last; i++) B.push(g);
   }
   
   /*void*/this.updateBit = function(/*int*/maskedVal) {
@@ -277,15 +308,18 @@ SoundRenderer = function()
     self.updateTimer();
     var v = (value&255)>>>0;
 	if( self.dirty ) {
-		covoxVal = (v&128 ?v-256:v);
+		covoxVal = ( v&128 ? v-256: v);
 	}
 	else {
-		covoxVal = v;
+		// The current int values are optimal.
+		covoxVal = v;	// don't see any improvements on FilterNoise(v);
 	}
+
   }
-	
+
   adjustSpeed();
   
   return self;
 
 }
+
