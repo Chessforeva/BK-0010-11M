@@ -193,15 +193,15 @@ Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
  <select id="usergames" title="Loads and starts .BIN files"
 	onchange="userGames()">
   <option value="">♠♣♥♦ Games ♠♣♥♦</option>
-  <option value="bkdemo.zip">BK Demo(music)</option>
+  <option value="bkdemo.zip">BK10 Demo</option>
   <option value="meloman.zip">Meloman(music)</option>
   <option value="soldat.zip">Soldat(music)</option>
-  <option value="valley.zip">(King's)Valley ★</option>
-  <option value="digger.zip">Digger ★</option>
+  <option value="valley.zip">KsValley ★(music)</option>
+  <option value="digger.zip">Digger ★(music)</option>
   <option value="tetris.zip">Tetris</option>
   <option value="penguin.zip">Penguin courier adv✰</option>
   <option value="bolde2.zip">Bolder Dash 2</option>
-  <option value="#goonies">Goonies ★</option>
+  <option value="#goonies">Goonies ★(music!)</option>
   <option value="#prince2">PrinceOfPersia ★</option>  
   <option value="#MiCo">MiamiCobra racing ★</option>
   <option value="#Robcop">Robocop ✰</option>
@@ -522,7 +522,7 @@ function _speed(t) {
   userSpeed();
 }
 
-// disabled the sound in by-default-way
+// other start opts
 function _starterhelper(ch) {
  switch(ch) {
   case 1: _speed("CS3b"); break;
@@ -657,7 +657,7 @@ if(f.charAt(0)=="#") {
     GAME.name = "Goonies"; _add_gm_adv(1);
     break;
  case "#prince2":
-    base.setSMK11Model(); startdisks(1,["POP.zip"],1); sColor(9); sHelper(5,8); sound_sv="8910c3";
+    base.setSMK11Model(); startdisks(1,["POP.zip"],1); sColor(9); sound_sv="8910c3";
     GAME.name = "POP"; _add_gm_adv(1);
     GAME.adv += '<div style="font-size:16px;"><br>Adjust speed and sound. '+
     '<div id="POPLVL" style="display:inline"></div><br>'+
@@ -977,7 +977,8 @@ function _setRetValues() {
  
 }
 
-function snd() { 
+function snd() {
+	Oz.on = 0;
 	base.soundClear();
 	}
 

@@ -33,6 +33,7 @@ FDDController = function()
   /*boolean*/this.readWord = function(/*int*/addr, /*QBusReadDTO*/ result)
   {
     this.updateTimer();
+	Oz.fdd_c++;
 
     if (!isReadable) {
       return false;
@@ -94,6 +95,7 @@ FDDController = function()
   /*boolean*/this.writeWord = function(/*int*/addr, /*short*/data)
   {
     this.updateTimer();
+	Oz.fdd_c++;
 
     var C = (addr & 0xFFFE)>>>0;
 	var d = (data & 0xFFFF)>>>0;

@@ -52,6 +52,15 @@ function FPSinit()
 	}
  else setTimeout('FPSinit()',999);
 }
+
+// There hould not be other requests while running fast (loading disks)
+var Oz = { on:0, tk:0, fps:6000, loops:500000, fdd_c:0 };
+
+//
+function runfast() {
+	Oz.tk = 60;
+	Oz.on = 1;
+}
 	
 //--------------------
 // The Main Loop
@@ -66,8 +75,11 @@ function FPSloop( onetime )
   if( !(base.dsks && fdc.drives.length==0) )	// are we waiting for disk drop?
   {
 	// if not then process
-	
-  var to=cpu.Cycles + BK_speed.cyc;	// bunch of cycles
+
+  if(Oz.on && soundOn) Oz.on=0;
+  
+  var to=cpu.Cycles + BK_speed.cyc + (Oz.on ? Oz.loops : 0);	// bunch of cycles
+  Oz.fdd_c = 0;
   
   var d=0, tp = base.FakeTape.prep;
   /* takes most CPU */
@@ -114,8 +126,15 @@ function FPSloop( onetime )
   
  }
  
- if(!onetime) setTimeout('FPSloop()',(1000/BK_speed.fps)|0);	// next loop after
-  
+ if(!onetime) setTimeout('FPSloop()',(1000/(BK_speed.fps+(Oz.on ? Oz.fps : 0)))|0);	// next loop after
+ 
+ if(Oz.tk) {
+   if(!Oz.on) Oz.tk = 0;
+   else if((--Oz.tk)== 0) Oz.on = 0; // turn off fast mode
+  }
+ else if(!soundOn && Oz.fdd_c>1200) {
+   runfast();		// make faster disk operations
+ }
 }
 
 
@@ -195,7 +214,7 @@ if(e.type=="keyup") keymap.keyRelease(e);
 
 if(e.type=="keydown") {
  if(e.keyCode==76 && e.ctrlKey) cheatings.livesfinder();
- if(e.keyCode==13 && (e.altKey || e.ctrlKey)) FullScreen=0.5;
+ if(e.keyCode==13 && (e.altKey || e.ctrlKey) && FullScreen==0) FullScreen=0.5;
 }
 
 }

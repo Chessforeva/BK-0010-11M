@@ -90,8 +90,18 @@ cheatings = new function(){
 	 base.writeWord(2956,8);
  }
  if(GAME.name.length && GAME.name == "POP") {
-	 if((GAME.flags&1)==0 && base.readWORD(2216)==1) {
+	 if((GAME.flags&2)==0) {
+		GAME.flags|=2;
+	    setInterval('cheatings.hack()',2000);
+	 }
+	 if((GAME.flags&4)==0 && v2216==2551) {
+		sHelper(1,8); 
+		GAME.flags|=4;		 
+	 }
+	 var v2216 = base.readWORD(2216);
+	 if((GAME.flags&1)==0 && v2216==1) {
        GAME.flags|=1;
+	   sHelper(1,1);
        var Q = GE("POPLVL");
 	   if(Q!=null) Q.innerHTML = _POP_prep_list();
 	 }
