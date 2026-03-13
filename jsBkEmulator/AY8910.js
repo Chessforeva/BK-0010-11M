@@ -35,7 +35,7 @@ AY8910 = function()
   function init()
   {
    xCps = 4000;	//~62.5 cycles per sample
-   c32 = xCps*32;
+   c32 = 4000 * 32; // may be splitted from xCaps
    for(var i=0;i<16;i++) ayRegs[i]=0;
   }
 
@@ -68,7 +68,7 @@ AY8910 = function()
     }
 
     if ((--eCntr)<= 0) {
-        eCntr = ePeriod;
+        eCntr = ePeriod || 1;
         if (!st) {
           e = (++e) & 0xF;
           if (e == 0) {
@@ -182,8 +182,16 @@ AY8910 = function()
 	}
 	else if (R == 13)
 	{
-        e = 0;
-        ne =((data & 4) ? 0 : 15);
+        //e = 0;
+        //ne =((data & 4) ? 0 : 15);
+
+	// The correct initial amplitude direction should match the shape's attack bit
+	// shape bit2 = attack: 0 means start high (decay), 1 means start low (attack)
+	// So ne=0 when attack=1 (starting low, going up) is actually correct...
+	// BUT e starts at 0 always - meaning attack shapes start silent, decay shapes start silent too
+	// Fix: for decay (attack=0), start e at 15:
+        e  = ((data & 4) ? 0 : 15);
+        ne = 0;
 
         st = false;
         eCntr = ePeriod;
