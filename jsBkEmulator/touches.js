@@ -4,7 +4,25 @@
 
 
 TOUCH_ = ('ontouchstart' in document.documentElement);
-MOBILE_ = (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i));
+
+function isMobileDevice() {
+  // Best modern signal: touch-primary device
+  if (window.matchMedia('(pointer: coarse)').matches) return true;
+
+  // Fallback for older browsers without matchMedia
+  if (!window.matchMedia) {
+    return /Android|iPhone|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+    // Note: iPad intentionally omitted — iOS 13+ reports as desktop
+  }
+
+  return false;
+}
+MOBILE_ = isMobileDevice();
+
+function img_folder() {
+	return (document.location.href.substr(0,4)=="http"? '/keybimgs/' : './keybimgs/');
+}
+
 
 var EVENT = { type: "", keyCode: 0, which:0, location:0,
  preventDefault: function() {} , stopPropagation: function() {} }; 
@@ -76,8 +94,7 @@ function addKey(n,f,c,x,y,w,h)
 {
  var s = '<div class="disSel" style="position:absolute; left:'+x+'px;top:'+y+'px;'+
 	'visibility:hidden"><img id="kButt'+c+'" src="' +
-	(document.location.href.substr(0,4)=="http"? '/keybimgs/' : './keybimgs/')+
-(f?f:n)+'.png" width="'+w+'" height="'+h+'" alt="'+n+'" >' +
+	img_folder()+(f?f:n)+'.png" width="'+w+'" height="'+h+'" alt="'+n+'" >' +
   '</div>';
  KBUT_.push(c);   
  document.write(s);
@@ -127,16 +144,41 @@ function TouchClick(e)
 {
 e.stopPropagation(); e.preventDefault();
 var t = e.target; if(!t) t=e.currentTarget;
-touchpushKey( parseInt(t.id.substr(5)));
+
+var c = (t.id=="BK_canvas" ? 32 : parseInt(t.id.substr(5)));
+c = touch_subst_get(c);
+
+touchpushKey(c);
 } 
 
 function TouchUp(e)
 {
 e.stopPropagation(); e.preventDefault();
 var t = e.target; if(!t) t=e.currentTarget;
-touchpopKey( parseInt(t.id.substr(5)) );
+
+var c = (t.id=="BK_canvas" ? 32 : parseInt(t.id.substr(5)));
+c = touch_subst_get(c);
+
+touchpopKey(c);
 } 
 
 if(!TOUCH_) keyLifter();	/* This lifts mouse press events */
 
 AddKeyButtons();
+
+
+//-----
+var touch_subst_keys = [];	// can remap some touches too (as in Keyboard.js) for games
+
+function touch_Subst_Key( onecode, code ) {
+	touch_subst_keys.push( { f: onecode, bk: code } );
+}
+
+function touch_subst_get(c) {		// substitute one BK keycode to other
+	for(var j=0; j<touch_subst_keys.length; j++) {
+		var Sb = touch_subst_keys[j];
+		if( Sb.f == c ) { c = Sb.bk; break; }
+	}
+	return c;
+}
+

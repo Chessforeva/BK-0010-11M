@@ -67,6 +67,11 @@ function runfast() {
 //--------------------
 function FPSloop( onetime )
 {
+ if(TOUCH_CTRL.infoactivated) {
+	  
+	  if( (--TOUCH_CTRL.infoactivated)==0 ) base.DRAW();
+  }
+ else {
 
  if(!dbg.active) {
 
@@ -124,6 +129,7 @@ function FPSloop( onetime )
   }
   }
   
+ }
  }
  
  if(!onetime) setTimeout('FPSloop()',(1000/(BK_speed.fps+(Oz.on ? Oz.fps : 0)))|0);	// next loop after
@@ -229,6 +235,8 @@ e.stopPropagation();
 
 // does fake key press action
 // f=1 touch case, do not release
+//
+
 function pushKey(n,f) {
 
  if(n==1000) cpu.nmi();

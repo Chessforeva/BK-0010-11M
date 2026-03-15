@@ -6,7 +6,8 @@
 </head>
 <body onload="loaded()" background="bk_bg.jpg" bgcolor="#8A8AA4">
 
-<div id="bg" style="width:980px;height:820px;position:absolute;top:0px;left:0px;" onmousedown="preventaction(event)"></div>
+<div id="bg" style="width:980px;height:820px;position:absolute;top:0px;left:0px;" 
+  onmousedown="if(preventaction)preventaction(event)"></div>
 
 
 <!--
@@ -374,6 +375,9 @@ Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
 <script src="BK_MAIN.js"></script>
 <script src="cheatings.js"></script>
 
+<script src="TouchController.js"></script>
+
+
 <script type="text/javascript">
 
 var Touch_Buttons = true || (TOUCH_ || MOBILE_);	/* to enable-disable */
@@ -450,6 +454,10 @@ function loaded() {
   
   var i = href.indexOf('game=');
   if(i>0) setTimeout('userGames("'+href.substr(i+5)+'")',2000);
+  
+  TOUCH_CTRL.duration_loops = 20;
+  if(MOBILE_) addTouchListeners(O);
+  else addSpaceListenerOnly(O);
    
   }
 }
@@ -661,9 +669,9 @@ if(f.charAt(0)=="#") {
     GAME.name = "POP"; _add_gm_adv(1);
     GAME.adv += '<div style="font-size:16px;"><br>Adjust speed and sound. '+
     '<div id="POPLVL" style="display:inline"></div><br>'+
-    'Use arrow keys + space + LeftALT to move.<br>'+
-    'Use LeftALT + down  to pick up the sword.<div>';
-	Touch_Buttons = false;
+    'Use arrow keys + space + leftAlt to move.<br>'+
+    'Use leftAlt + down  to pick up the sword.<br>'+
+	'Enter, X is same as leftAlt.<div>';
     break;
  case "#prince1":  startdisks(0,["PRINCE.zip"],1); sHelper(5,6);
     break;
@@ -1088,6 +1096,9 @@ return false;
 
 
 function openFullscreen() {
+
+  if(MOBILE_) return;
+
   var E = document.documentElement;
   if(E) {
   if (E.requestFullscreen) E.requestFullscreen();
@@ -1131,6 +1142,7 @@ function closeFullscreen() {
 	onclick="FullScreen=5;"> close
 </button>
 </div>
+<div id="Work0" style="position:absolute;left:0;top:0;width:0;height:0;visibility:hidden">
 
 </body>
 </html>

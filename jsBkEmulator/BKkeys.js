@@ -244,7 +244,10 @@ if(navigator.userAgent.indexOf("Firefox") >= 0)
 			if(cd>47 && cd<58 && AP2 && p.bk_ap2) cd = p.bk_ap2;
 			}
 
-		if(cd) pushKey(cd);
+		if(cd) {
+			pushKey(cd);
+			cd = cheats_pushKey(cd);
+			}
 		}
 	return cd;
  }

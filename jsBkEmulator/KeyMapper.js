@@ -3,6 +3,9 @@ KeyMapper = function()
 {
   var self = this;
   
+  // can be used above to know state of the special key
+  this.spckey = { alt: 0, ctrl: 0, shift: 0 };
+  
   var /*int*/nextEvent = 0;
   var /*int*/nextKey = -1;
   var /*int*/lastKey = -1;
@@ -17,6 +20,22 @@ KeyMapper = function()
   this.getCaps = function() { return capsLocked; }
   this.Capsed = function() { capsLocked = !capsLocked; }
   
+  function update_spckeys(e,state) {
+	var /*int*/key = e.keyCode || e.which;
+	switch (key)
+    {
+    case 16: /*Shift*/
+	 self.spckey.shift = state;
+     break;
+    case 17: /*Ctrl*/
+	 self.spckey.ctrl = state;
+	 break;
+    case 18: /*Alt*/
+	 self.spckey.alt = state;
+	 break;
+    }  
+  }
+  
   function /*int*/translateKey(/*KeyEvent*/ e) {
     var /*int*/key = e.keyCode || e.which;
 
@@ -25,11 +44,11 @@ KeyMapper = function()
     case 16: /*Shift*/
      return -1;
     case 17: /*Ctrl*/
-	if(e.location==1) self.setRus(); /*RUS*/
-	if(e.location==2) self.setLat(); /*LAT*/
+	 if(e.location==1) self.setRus(); /*RUS*/
+	 if(e.location==2) self.setLat(); /*LAT*/
      return -1;
     case 18: /*Alt*/
-     return -1;
+	 return -1;
     case 20:
       self.Capsed();
       return -1;
@@ -86,7 +105,10 @@ KeyMapper = function()
 
   /*void*/this.keyHit = function(/*KeyEvent*/e)
   {
+	update_spckeys(e,1);
+	
     var k = e.keyCode || e.which;
+
 
     if (joyMapper.translateKey(e, true)) {
 	return;
@@ -103,6 +125,9 @@ KeyMapper = function()
   }
 
   /*void*/this.keyRelease = function(/*KeyEvent*/ e) {
+	
+	update_spckeys(e,0);
+	
     var /*int*/key = e.keyCode || e.which;
 
     if ((key >= 0) && (key == lastKey))

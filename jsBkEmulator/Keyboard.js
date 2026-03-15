@@ -64,6 +64,8 @@ Keyboard = function()
     keycode = /*(short)*/(key & 0xFF)>>>0;
     status |= 0x80;
     keyDown = true;
+	keycode = cheats_pushKey( keycode );
+	//console.log("Key:"+keycode);
   }
 
   /*void*/this.setKeyDown = function(/*boolean*/isDown)

@@ -89,6 +89,8 @@ cheatings = new function(){
 	 base.writeWord(2944,8); // set always = 8
 	 base.writeWord(2956,8);
  }
+ 
+ // The new Prince Of Persia 
  if(GAME.name.length && GAME.name == "POP") {
 	 if((GAME.flags&2)==0) {
 		GAME.flags|=2;
@@ -100,6 +102,8 @@ cheatings = new function(){
 	 }
 	 var v2216 = base.readWORD(2216);
 	 if((GAME.flags&1)==0 && v2216==1) {
+		 // set Enter as X, Esc as F1 :)
+       touch_subst_keys = [{ f:10, bk:120 }, {f:1000, bk: 112}];
        GAME.flags|=1;
 	   sHelper(1,1);
        var Q = GE("POPLVL");
@@ -144,3 +148,66 @@ function _POP_selected() {
  var Q = GE("POPLVL");		// remove selector
  Q.innerHTML = '';
 }
+
+
+// Look for Keyboard.js punch() to see keycodes on log to substitute
+
+function _POP_altkey() {
+	var a = (GAME.flags&8);
+	if(!a) GAME.flags|=8;	// toggle on
+	else GAME.flags-=8;		// off
+	a = (GAME.flags&8);
+			
+	// use this small div
+	var W = GE("Work0");
+	W.innerHTML = '<img src="' + img_folder() + (a ? "red-on-16.png" : "red-off-16.png") + '" width="16" height="16">';
+	var S = W.style;
+	S.left = '10px';
+	S.top = '40px';
+	S.width = '20px';
+	S.height = '20px';
+	S.visibility = "visible";
+	S.zIndex = 9990;
+		
+	// Start substitute for:
+	// Left 8  ->   Alt+Left 136
+	// Right 25  ->  Alt+Right 153
+	if(a) {
+		touch_subst_keys.push({ f:8, bk:136 });
+		touch_subst_keys.push({ f:25, bk:153 });
+	}
+	else
+	{
+		touch_subst_keys.pop();
+		touch_subst_keys.pop();
+	}
+}
+
+//To hook heypresses
+function cheats_onPress(key) {
+	
+	if(GAME.name.length && GAME.name == "POP" && (GAME.flags&1)) {
+		if(key=='key_f1' || key=='key_enter') _POP_altkey();
+	}
+}
+
+
+function cheats_onRelease(key) {
+	
+}
+
+// This can substitute keyboard keys
+function cheats_pushKey(key_code) {
+	
+	if(GAME.name.length && GAME.name == "POP" && (GAME.flags&1)) {
+		if(key_code==120) _POP_altkey(); // if x pressed, simulate Alt press
+		if(GAME.flags&8) {
+			if(key_code==8) key_code=136;
+			if(key_code==25) key_code=153;
+		}
+	}
+	//console.log("keycode:"+key_code);
+	
+return key_code;
+}
+
