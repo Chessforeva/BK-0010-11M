@@ -153,6 +153,10 @@ function _POP_selected() {
 // Look for Keyboard.js punch() to see keycodes on log to substitute
 
 function _POP_altkey() {
+	
+	var c = (GAME.flags&16);
+	if(c) return;		// wait a second
+	
 	var a = (GAME.flags&8);
 	if(!a) GAME.flags|=8;	// toggle on
 	else GAME.flags-=8;		// off
@@ -187,7 +191,14 @@ function _POP_altkey() {
 function cheats_onPress(key) {
 	
 	if(GAME.name.length && GAME.name == "POP" && (GAME.flags&1)) {
-		if(key=='key_f1' || key=='key_enter') _POP_altkey();
+		if(key=='key_f1' || key=='key_enter') {
+			var c = (GAME.flags&16);
+			if(!c) {
+				_POP_altkey();
+				GAME.flags|=16;	// toggle on to ignore other...
+				setTimeout('GAME.flags-=16',999);
+				}			
+		}
 	}
 }
 
