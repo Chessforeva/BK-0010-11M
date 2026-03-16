@@ -17,7 +17,7 @@ version 2.0
 (07.2021 , added debug mode on F11
  12.2022 , small bugfix for sound
  02.2026 , fullscreen exit to the main window, csave
- 03.2026 , smk-512 with .HDI single C: disk
+ 03.2026 , sounds updates, smk-512 with .HDI single C: disk
  )
 freeware for deployment on any font
 
@@ -662,8 +662,12 @@ if(f.charAt(0)=="#") {
  // other boot cases
  switch(f) {
  case "#goonies":
-    base.setSMK11Model(); startdisks(1,["GOONIES.zip"],1); sColor(9); sHelper(5,6);
+    base.setSMK11Model(); startdisks(1,["GOONIES.zip"],1); sColor(9);
+	sHelper(5,6); sound_sv="8910c3";
     GAME.name = "Goonies"; _add_gm_adv(1);
+	GAME.adv += '<div style="font-size:16px;"><br>Adjust speed and sound.<br>'+
+	'Set the Sound ON early.<br>'+
+	'Sound inits required.</div>';
     break;
  case "#prince2":
     base.setSMK11Model(); startdisks(1,["POP.zip"],1); sColor(9); sound_sv="8910c3";

@@ -1460,7 +1460,7 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
   this.joystick_setState =  function(state) { joystick.setState(state); }
   this.sound_push = function(s) {
 	if(srend.On!=(soundOn==1) /*Global UI */) srend.setSound(soundOn);
-	//else if(srend.On) srend.pushSound();
+	//else if(srend.On) srend.updateTimer();
 	} 
   this.soundClear = function() { srend.clear(1); srend.adjConstSpeed(); } 
   this.sounds = function( synthOn, synthMix, synthpaused, covoxOn ) {

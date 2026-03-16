@@ -260,8 +260,7 @@ SoundRenderer = function()
 			//val+=(c>32?32: (c<-32?-32:c));	// smoothing
 			val += c;
 
-			g = val;
-			
+			g = val;	
 			g /= 10;				// This sounds much better
 	
 			}
@@ -276,17 +275,25 @@ SoundRenderer = function()
 		c = covoxVal-val;
 		
 		// this smoothing filter has been removed, distorts the sound sometimes
-		// val+=(c>32?32: (c<-32?-32:c));
+		//val+=(c>32?32: (c<-32?-32:c));
 		val += c;
 
 		g = val;
 		
 		if(!self.dirty) {
-			g = (g&255)>>>0;
+			
+			//Gemini says:
+			//In the world of 8-bit digital audio, 128 is the magic number
+			// because it is the exact midpoint of a byte (0 to 255).
+			//By subtracting 128, you align your signal perfectly with the Zero-Crossing line.
+			//The speaker cone now rests at its natural physical center.
+			//You are eliminating "Audio DC Offset".
+			
+			g -= 128;				// Gemini says, it is 
 			g /= 128;				// This sounds much better
 			}
 		}
-	else g = (A/xCPS);	// 1 channel
+	else g = (A/xCPS)/256;	// 1 channel
 
     var q = Chan;
     Chan = (synth.On && !synth.mixed ? 3 : 1);
@@ -307,14 +314,15 @@ SoundRenderer = function()
   /*void*/this.updateCovox = function(/*int*/value) {
     self.updateTimer();
     var v = (value&255)>>>0;
+	
 	if( self.dirty ) {
 		covoxVal = ( v&128 ? v-256: v);
 	}
 	else {
 		// The current int values are optimal.
-		covoxVal = v;	// don't see any improvements on FilterNoise(v);
+		covoxVal = v;	//  don't see any improvements on FilterNoise(v);
 	}
-
+	
   }
 
   adjustSpeed();

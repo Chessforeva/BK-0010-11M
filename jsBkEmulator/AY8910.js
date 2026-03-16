@@ -199,7 +199,32 @@ AY8910 = function()
     }
   }
   
+
+  	// To force init from outside (can distort)
+	// Can't use it in the middle of playing...
+	
+	this.initAY = function () {
+	
+    // Disable all channels (reg 7 = 0x3F = all tone+noise disabled)
+    self.setRegIndex(7);
+    self.writeReg(0x3F);
+
+    // Zero all volumes
+    self.setRegIndex(8);  self.writeReg(0);
+    self.setRegIndex(9);  self.writeReg(0);
+    self.setRegIndex(10); self.writeReg(0);
+
+    // Zero all tone periods
+    self.setRegIndex(0);  self.writeReg(0);
+    self.setRegIndex(1);  self.writeReg(0);
+    self.setRegIndex(2);  self.writeReg(0);
+    self.setRegIndex(3);  self.writeReg(0);
+    self.setRegIndex(4);  self.writeReg(0);
+    self.setRegIndex(5);  self.writeReg(0);
+	
+	}
+
   init();
-  
+
   return self;
 }
