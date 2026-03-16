@@ -242,15 +242,20 @@ function _POP_altkey() {
 	// Start substitute for:
 	// Left 8  ->   Alt+Left 136
 	// Right 25  ->  Alt+Right 153
+	// Up 26 -> Alt+Up 154
+	// Down 27 -> Alt+Down 155
+	//
+	var t=touch_subst_keys;
 	if(a) {
-		touch_subst_keys.push({ f:8, bk:136 });
-		touch_subst_keys.push({ f:25, bk:153 });
-	}
+		t.push({ f:8, bk:136 });
+		t.push({ f:25, bk:153 });
+		t.push({ f:24, bk:154 });
+		t.push({ f:27, bk:155 });				
+		}
 	else
-	{
-		touch_subst_keys.pop();
-		touch_subst_keys.pop();
-	}
+		{
+		for(var i=0;i<4;i++) t.pop();
+		}
 }
 
 //
@@ -290,8 +295,12 @@ function cheats_pushKey(key_code) {
 	if(GAME.flags&1) {
 		if(key_code==120) _POP_altkey(); // if x pressed, simulate Alt press
 		if(GAME.flags&8) {
-			if(key_code==8) key_code=136;
-			if(key_code==25) key_code=153;
+			switch(key_code) {
+			case 8:	key_code=136; break;
+			case 25: key_code=153; break;
+			case 24: key_code=154; break;
+			case 27: key_code=155; break;
+			}
 		}
 	}
 	break;
