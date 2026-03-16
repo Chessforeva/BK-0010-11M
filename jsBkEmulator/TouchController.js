@@ -10,7 +10,7 @@ TOUCH_CTRL = {
 		infowas   : 0,
 		infoactivated : 0,
 		duration_loops: 0,
-		disabled  : []		// list of disabled keys (from Cheats.js) 
+		disabled  : []		// list of disabled keys (from cheatings.js) 
     };
 
 // -----

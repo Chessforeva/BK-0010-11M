@@ -66,6 +66,16 @@ cheatings = new function(){
 		base.writeWord(lv_cht[i].adr, lv_cht[i].val);	// cheating'	
  }
  
+ 
+ function disable_Esc() {
+	if(!(GAME.flags&1024)) {
+		GAME.flags|=1024;	// toggle on
+		touch_subst_keys.push({ f:1000, bk:32 });	// Turn off ESC (Stop)
+		keymap.disabledESC = true;
+	}
+ }
+ 
+ 
  this.hack = function() {
  
  var o=base.FakeTape, fn=o.filename, D=fdc.drives;
@@ -80,6 +90,7 @@ cheatings = new function(){
 	break;
 
  case "DIGGER.BIN":
+	disable_Esc();
 	base.writeWord(2226,8); // set lives always = 8
 	break;
  
@@ -141,11 +152,7 @@ cheatings = new function(){
 	}
 	break;
  case "COURIER.BIN":
-	var a = (GAME.flags&1);
-	if(!(GAME.flags&1)) {
-		GAME.flags|=1;	// toggle on
-		touch_subst_keys.push({ f:1000, bk:32 });	// Turn off ESC (Stop)
-	}
+	disable_Esc();
 	break;
  }
 
@@ -288,7 +295,7 @@ function cheats_onRelease(key) {
 
 // This can substitute keyboard(!) keys
 function cheats_pushKey(key_code) {
-
+ 
  if(GAME.name)
   switch(GAME.name) {
   case "POP":

@@ -6,6 +6,8 @@ KeyMapper = function()
   // can be used above to know state of the special key
   this.spckey = { alt: 0, ctrl: 0, shift: 0 };
   
+  this.disabledESC = false;		// can disable Esc from cheatings.js
+  
   var /*int*/nextEvent = 0;
   var /*int*/nextKey = -1;
   var /*int*/lastKey = -1;
@@ -108,7 +110,7 @@ KeyMapper = function()
 	update_spckeys(e,1);
 	
     var k = e.keyCode || e.which;
-
+	if(k==27 && self.disabledESC) return;		// do nothing
 
     if (joyMapper.translateKey(e, true)) {
 	return;
