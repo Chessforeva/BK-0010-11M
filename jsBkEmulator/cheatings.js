@@ -68,57 +68,125 @@ cheatings = new function(){
  
  this.hack = function() {
  
- var o=base.FakeTape, n=o.filename, D=fdc.drives;
+ var o=base.FakeTape, fn=o.filename, D=fdc.drives;
  var dskA=(D.length>0 ? D[0].imageName : "");
  var dskB=(D.length>1 ? D[1].imageName : "");
+ var f2 = GAME.f2;
+ var n=((fn && fn.length>0) ? fn : (f2 ? f2 : '' ));
+
+ switch(n) {
+ case "VALLEY.BIN":
+	base.writeWord(3140,9<<8); // set lives always =9
+	break;
+
+ case "DIGGER.BIN":
+	base.writeWord(2226,8); // set lives always = 8
+	break;
  
- if(!o.prep) {
- if(n=="VALLEY.BIN") base.writeWord(3140,9<<8); // set lives always =9
- if(n=="DIGGER.BIN") base.writeWord(2226,8); // set lives always = 8
- if(n=="NAVVY.BIN") base.writeWord(15872,65535); // set always = 3
- if(n=="AFRICA.BIN") base.writeWord(5792,99); // set always = 99
- if(n=="PANGO.BIN") base.writeWord(8770,51); // set always = 3
- if(n=="CIRCLER.BIN") base.writeWord(8066,8); // set always = 8
- if(n=="BOLDER.BIN") base.writeWord(2120,100); // set always = 3
- if(n=="LODERUN.BIN") base.writeWord(1006,10); // set always = 3
- if(n=="KLADJ.BIN") base.writeWord(7966,7); // set always = 7
- if(n=="TARZAN.BIN") base.writeWord(1006,5); // set always = 5
- if(n=="JETMAN.BIN") base.writeWord(4240,9); // set always = 9
- if(n=="F15.BIN") base.writeWord(844,8); // set always = 8
- if(n=="POPCORN.BIN") {
-	 base.writeWord(2944,8); // set always = 8
-	 base.writeWord(2956,8);
+ case "NAVVY.BIN":
+	base.writeWord(15872,65535); // set always = 3
+	break;
+
+ case "AFRICA.BIN":
+	base.writeWord(5792,99); // set always = 99
+ 	break;
+
+ case "PANGO.BIN":
+	base.writeWord(8770,51); // set always = 3
+	break;
+
+ case "CIRCLER.BIN":
+	base.writeWord(8066,8); // set always = 8
+	break;
+
+ case "BOLDER.BIN":
+	base.writeWord(2120,100); // set always = 3
+	break;
+
+ case "LODERUN.BIN":
+	base.writeWord(1006,10); // set always = 3
+	break;
+
+ case "KLADJ.BIN":
+	base.writeWord(7966,7); // set always = 7
+	break;
+
+ case "TARZAN.BIN":
+	base.writeWord(1006,5);// set always = 5
+	break;
+
+ case "JETMAN.BIN":
+	base.writeWord(4240,9); // set always = 9
+	break;
+
+ case "F15.BIN":
+	base.writeWord(844,8);// set always = 8
+	var a = (GAME.flags&1);
+	if(!(GAME.flags&1)) {
+		GAME.flags|=1;	// toggle on
+		touch_subst_keys.push({ f:46, bk:49 });		// DEL button as 1
+	}
+	break;
+
+ case "POPCORN.BIN":
+	base.writeWord(2944,8); // set always = 8
+	base.writeWord(2956,8);
+	break;
+	
+ case "TETRIS.BIN":
+	var a = (GAME.flags&1);
+	if(!(GAME.flags&1)) {
+		GAME.flags|=1;	// toggle on
+		touch_subst_keys.push({ f:46, bk:48 });		// DEL button as 0
+	}
+	break;
+ case "COURIER.BIN":
+	var a = (GAME.flags&1);
+	if(!(GAME.flags&1)) {
+		GAME.flags|=1;	// toggle on
+		touch_subst_keys.push({ f:1000, bk:32 });	// Turn off ESC (Stop)
+	}
+	break;
  }
- 
+
+if(GAME.name)
+ switch(GAME.name) {	 
  // The new Prince Of Persia 
- if(GAME.name.length && GAME.name == "POP") {
-	 if((GAME.flags&2)==0) {
+ case "POP":
+	if((GAME.flags&2)==0) {
 		GAME.flags|=2;
-	    setInterval('cheatings.hack()',2000);
-	 }
-	 if((GAME.flags&4)==0 && v2216==2551) {
+		setInterval('cheatings.hack()',2000);
+	}
+	if((GAME.flags&4)==0 && v2216==2551) {
 		sHelper(1,8); 
 		GAME.flags|=4;		 
-	 }
-	 var v2216 = base.readWORD(2216);
-	 if((GAME.flags&1)==0 && v2216==1) {
-		 // set Enter as X, Esc as F1 :)
-       touch_subst_keys = [{ f:10, bk:120 }, {f:1000, bk: 112}];
-       GAME.flags|=1;
-	   sHelper(1,1);
-       var Q = GE("POPLVL");
-	   if(Q!=null) Q.innerHTML = _POP_prep_list();
-	 }
+	}
+	var v2216 = base.readWORD(2216);
+	if((GAME.flags&1)==0 && v2216==1) {
+		// set Enter as X, Esc as F1 :)
+		touch_subst_keys = [{ f:10, bk:120 }, {f:1000, bk: 112}];
+		GAME.flags|=1;
+		sHelper(1,1);
+		var Q = GE("POPLVL");
+		if(Q!=null) Q.innerHTML = _POP_prep_list();
+	}
+	break;
  }
  
- if(dskB=="revolt.bkd")
+ if(GAME.f)
+  switch(GAME.f) {
+  case "#Revolt":
 	if(base.readWORD(596)==2) base.writeWord(596,3); // set always = 3
- if(dskA=="PRNCE.BKD")
+	break;
+	
+  case "#prince1":
 	if(base.readWORD(11572)<10) {
 		base.writeWord(11572,6);	// health
 		base.writeWord(14020,512);	// time left 59min
 		}
+	break;
  }
+
  livescheat();	// in BK_MAIN.js lives cheating tool
 
  }
@@ -149,9 +217,7 @@ function _POP_selected() {
  Q.innerHTML = '';
 }
 
-
-// Look for Keyboard.js punch() to see keycodes on log to substitute
-
+// Make also X and Enter work as leftAlt
 function _POP_altkey() {
 	
 	var c = (GAME.flags&16);
@@ -187,19 +253,27 @@ function _POP_altkey() {
 	}
 }
 
-//To hook heypresses
+//
+// To hook touch presses on canvas
+// For touch buttons should use touch_subst_keys array (in touches.js)
+// 
 function cheats_onPress(key) {
 	
-	if(GAME.name.length && GAME.name == "POP" && (GAME.flags&1)) {
+ if(GAME.name)
+  switch(GAME.name) {
+  case "POP":
+	if(GAME.flags&1) {
 		if(key=='key_f1' || key=='key_enter') {
 			var c = (GAME.flags&16);
 			if(!c) {
 				_POP_altkey();
 				GAME.flags|=16;	// toggle on to ignore other...
 				setTimeout('GAME.flags-=16',999);
-				}			
+			}
 		}
 	}
+	break;
+ }
 }
 
 
@@ -207,17 +281,22 @@ function cheats_onRelease(key) {
 	
 }
 
-// This can substitute keyboard keys
+// This can substitute keyboard(!) keys
 function cheats_pushKey(key_code) {
-	
-	if(GAME.name.length && GAME.name == "POP" && (GAME.flags&1)) {
+
+ if(GAME.name)
+  switch(GAME.name) {
+  case "POP":
+	if(GAME.flags&1) {
 		if(key_code==120) _POP_altkey(); // if x pressed, simulate Alt press
 		if(GAME.flags&8) {
 			if(key_code==8) key_code=136;
 			if(key_code==25) key_code=153;
 		}
 	}
-	//console.log("keycode:"+key_code);
+	break;
+  }
+ //console.log("keycode:"+key_code);
 	
 return key_code;
 }

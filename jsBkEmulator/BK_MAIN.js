@@ -147,6 +147,7 @@ function FPSloop( onetime )
 
 Gbin.onGot=function(filename, bytes)
 	{
+	GAME.f2=filename;	// just save
 	var f = filename.toUpperCase();
 	if(f.indexOf(".ROM")>0) {
 		//cpu.reset();
