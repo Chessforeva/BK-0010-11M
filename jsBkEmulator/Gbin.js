@@ -9,15 +9,183 @@ Use by override:
  // bytes is Uint8Array
 Other:
  Gbin.getUrl(href) // go,read now
-*/
+ 
+
+Updated on 03.2026:
+zip file over wasm_Mb size, or other formats ->  WebAssembly
+
+Overrides to hook:
+
+ Gbin.onGotAll = function(A){...};		// A contains all(!) extracted files and folders
+ Gbin.progress(step, (null or MAX));
+
+ */
 Gbin = {
+
+// new 03.2026 wasm extractor...
+onGotAll:function(A){},
+progress:function(step,total){},
+
+wasm_Mb: 3,             // Mb needed to use wasm instead of JSZip
+wasm_zip: "7zz.zip",    // zipped 7zz.umd.js, 7zz.wasm to request from webserver
+
+// globals
+ws:{ Rd:0, Ld:0, Bl:null, JS:null, wu:null, sz:null },
+files:[],
+
+b2s:function(b){
+ var s="", i, u=new Uint8Array(b);
+ for(i=0;i<u.length;i++) s+=String.fromCharCode(u[i]);
+ return s;
+},
+
+loWs:function(cb){
+ if(Gbin.ws.Rd){if(cb) cb();return;}
+ if(Gbin.ws.Ld){setTimeout(function(){Gbin.loWs(cb)},200);return;}
+ Gbin.ws.Ld=1;
+ Gbin.progress(0,3);
+ var r=new XMLHttpRequest();
+ r.onreadystatechange=function(){
+  if(r.readyState===3) Gbin.progress(1,3);
+  if(r.readyState===4 && r.status===200){
+    Gbin.progress(2,3);
+    var z;
+    try{z=new JSZip(Gbin.b2s(r.response));}catch(e){Gbin.e();return;}
+     var f=z.file(/7zz\.umd\.js|7zz\.wasm/);
+     var js=null, wasm=null, i;
+     for(i in f){
+      if(f[i].name.indexOf(".js")>0) js=f[i].asText();
+      if(f[i].name.indexOf(".wasm")>0) wasm=f[i].asUint8Array();
+     }
+     var wb=new Blob([wasm],{type:"application/wasm"});
+     Gbin.ws.wu=URL.createObjectURL(wb); Gbin.ws.Bl = wb;
+     var s=document.createElement("script"); s.text=js;
+     document.body.appendChild(s);
+     setTimeout(function(){Gbin.wt7z(cb);},100);
+    }
+ };
+
+ r.open("GET",Gbin.wasm_zip,true);
+ r.responseType="arraybuffer";
+ r.send();
+},
+
+wt7z: async function(cb){
+ if(typeof SevenZip==="function"){
+  Gbin.ws.sz = await SevenZip({locateFile:function(){return Gbin.ws.wu;}});
+  Gbin.wtWs(Gbin.ws.sz,cb);
+ } else setTimeout(function(){Gbin.wt7z(cb);},100);
+},
+
+wtWs:function(sz,cb){
+ if(sz && sz.FS && sz.callMain){
+  Gbin.ws.JS = sz; Gbin.progress(3,3);
+  Gbin.ws.Rd = 1; Gbin.ws.Ld = 0;
+  if(cb) cb();
+ } else setTimeout(function(){Gbin.wtWs(sz,cb);},100);
+},
+
+listFS:function(sz,dir){
+ var r=[],e,i;
+ try{
+  e=sz.FS.readdir(dir);
+  for(i=0;i<e.length;i++){
+   if(e[i]=="."||e[i]=="..")continue;
+   var p = dir + (dir=="/"?"":"/") + e[i];
+   try{
+    var st=sz.FS.stat(p);
+    if(sz.FS.isDir(st.mode)) r=r.concat(Gbin.listFS(sz,p));
+    else r.push(p);
+   }catch(x){}
+  }
+ }catch(x){}
+ return r;
+},
+
+wUz:function(n,A){
+ if(typeof A==='string'){
+  var w=new Uint8Array(A.length);
+  for(var i=0;i<A.length;i++) w[i]=A.charCodeAt(i)&0xff;
+  A = w;
+ } else if(A instanceof ArrayBuffer) A = new Uint8Array(A);
+ Gbin.progress(0,4);
+ Gbin.loWs(function(){
+  Gbin.progress(1,4);
+  var sz=Gbin.ws.sz;
+  if(!sz||!sz.FS){setTimeout(function(){Gbin.wUz(n,A);},200);return;}
+  if(!sz){Gbin.e();return;}
+  try{
+   var F="in.bin"; sz.FS.writeFile(F, A);
+   Gbin.progress(2,4);
+   var b=Gbin.listFS(sz,"/");
+   var tick=0;
+   var t=setInterval(function(){Gbin.progress(tick++,null);},200);
+   sz.callMain(['x', F, '-y']);
+   clearInterval(t);
+   Gbin.progress(3,4);
+   var a = Gbin.listFS(sz,"/");
+   var o=[],i;
+   for(i=0;i<a.length;i++){
+    if(b.indexOf(a[i])<0){
+     try{
+      var d=sz.FS.readFile(a[i]);
+      var ff = a[i];
+      if(ff.length && ff.charAt(0)=='/') ff=ff.substr(1);
+      o.push({name:ff,data:new Uint8Array(d)});
+     }catch(e){}
+    }
+   }
+   Gbin.files=o;
+   Gbin.progress(4,4);
+   Gbin.onGotAll(o);
+   if(o.length){
+    Gbin.name = o[0].name;
+    Gbin.onGot(o[0].name, o[0].data);
+   }
+  }catch(e){Gbin.e();}
+ });
+},
+
+
+// old working...
 onGot:function(n,a){},
 unZip:1,
-getUrl:function(u){var r=new XMLHttpRequest();r.onreadystatechange=function(){if(r.readyState===4){if(r.status===200){Gbin.w(decodeURI(u),r.response)}else{Gbin.e()}}};r.open("GET",u,true);r.responseType="arraybuffer";r.send();},
+getUrl:function(u){var r=new XMLHttpRequest(); r.onprogress=function(e){Gbin.progress(e.loaded, (e.lengthComputable?e.total:null))};
+r.onreadystatechange=function(){if(r.readyState===4){if(r.status===200){Gbin.w(decodeURI(u),r.response)}else{Gbin.e()}}};r.open("GET",u,true);r.responseType="arraybuffer";r.send();},
 A: function(){Gbin.a();var s=document.location.href,i=s.indexOf("URL=");if(i>0){s=s.substr(i+4);i=s.indexOf('&');if(i>=0)s=s.substr(0,i);if(s.length>0)Gbin.getUrl(s);}},
 q: function(n){var l=n.length;return(Gbin.unZip&&l>4&&n.substr(l-4).toUpperCase()==".ZIP");},
-Z: function(n,A){return Gbin.q(n)?Gbin.z(A):A},
-w: function(n,R){Gbin.name=n;var a=new Uint8Array(Gbin.Z(n,R));Gbin.onGot(Gbin.name,a);},	
+
+qq: function(f,ext){return(f.toLowerCase().lastIndexOf(ext.toLowerCase())==(f.length-4));},
+qe: function(n){
+ var E=[".7z",".zip",".tar",".gz",".bz2",".xz",".rar",".zst"];
+ for(var j in E){if(Gbin.qq(n,E[j])) return 1;}
+ return 0;
+},
+ 
+Z: function(n,A){
+ var z = A.byteLength||A.length||0;
+ if(z>(Gbin.wasm_Mb<<20)&&Gbin.qe(n)){
+  if(typeof WebAssembly==="object"){
+   if(A instanceof ArrayBuffer) A=Gbin.b2s(A);
+   Gbin.wUz(n,A);
+   return new Uint8Array(0);//async path
+  }
+ }
+ return Gbin.q(n)?Gbin.z(A):A;
+},
+
+w: function(n,R){
+ Gbin.name=n;
+ var r=Gbin.Z(n,R);
+ // async path (WASM)
+ if(r && r.length===0) return;
+ var a=new Uint8Array(r);
+ Gbin.files=[{name:n,data:a}];
+ Gbin.onGot(Gbin.name,a);
+ Gbin.onGotAll(Gbin.files);
+},
+
+
 g: function(i){return document.getElementById(i)},
 a: function(){setTimeout('Gbin.b()',999)},
 b: function(){var d=Gbin.g("dropfile");if(d==null){if(--(Gbin.Q))Gbin.a()}else{d.addEventListener('dragover',Gbin.h,false);d.addEventListener('drop',Gbin.s, false);}},

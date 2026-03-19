@@ -132,11 +132,10 @@ Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
  <br>
   <table><tr>
  <td><font size="2"><div id="PCaddr"></div></font></td><td width="4"></td>
+ </tr><tr>
  <td><font size="2"><div id="MHZshow"></div></font></td><td width="4"></td>
-  <tr>
+ </tr><tr>
  <td><font size="2"><div id="BKshow"></div></font></td><td width="4"></td>	
- </tr>
- 
  </tr>
  </table>
  <input type="button" id="kbrd" value="Show keyboard" onclick="kbShow()">
@@ -699,7 +698,7 @@ else {
 	sColor(0);
 	
 	if(f=='tetris.zip') setTimeout('gmcatch(1)',18000);		// press 0
-	
+	_GBIN.i = null;
 	if(f.length) Gbin.getUrl("files/"+f);	// read from url, see BK_MAIN.js
  }
 }
@@ -714,7 +713,18 @@ function gmcatch(ch) {
  }
 }
 
+Gbin.progress = function( step, N ) {	// Extractor info on progress
+	var O = GE("BKshow");
+	var s = '';
+	for(var i=1;i<=10;i++) {
+		if(N) s+=((step<((i*N)/10)) ? "_" : "#");
+		else s+=((i-1)<=(step%10) ? "_" : "=");
+	}
+	O.innerHTML = s;
+}
+
 function GoDisks() {
+	_GBIN.i = null;
 	Gbin.getUrl("files/"+LOADDSK[0]);
 }
 
@@ -735,7 +745,11 @@ function userBasic() {
 	O.value = "*";
  }
  else {
-  if(f.indexOf("*")<0) { Gbin.getUrl("files/"+f); sColor(0); cpu.reset(); }
+  if(f.indexOf("*")<0) {
+	_GBIN.i = null;  
+	Gbin.getUrl("files/"+f); 
+	sColor(0); cpu.reset();
+	}
  }
 }
 

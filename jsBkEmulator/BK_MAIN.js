@@ -143,10 +143,58 @@ function FPSloop( onetime )
  }
 }
 
+function ck_extension( file, ext ) {
+	return (file.toLowerCase().lastIndexOf(ext.toLowerCase()) == (file.length-4));
+}
 
+_GBIN = {
+	i:null,
+	size:0
+};
 
-Gbin.onGot=function(filename, bytes)
+/* Files to process */
+Gbin.onGotAll=function(A)
 	{
+		GE("BKshow").innerHTML = '';	// clear the progress bar
+	
+		// Find the largest file in the extracted zip
+		var B = _GBIN;
+		B.i = null; B.size = 0;
+		
+		var L = A.length;
+		if(L<=1) return;	// Will process it on onGot()
+	
+		var extensions = [".hdi",".bkd",".img",".rom",".bin",".cod"];		
+				
+		var fn,bytes,l;
+		for(var i=0;i<L;i++) {
+			fn = A[i].name;
+			bytes = A[i].data;
+			l = bytes.length;
+			if(i==0&&L==1&&ck_extension(fn,".zip")) {
+				return;	// same zip, do nothing
+			}
+			if(B.i===null || B.size<l) {
+				for(var j=0;j<extensions.length;j++) {
+					if(ck_extension(fn,extensions[j])) {
+						if(B.size<l) { B.i = i; B.size=l; }
+					}
+				}
+			}
+		}
+		if(B.i!==null) {
+			fn = A[B.i].name;
+			bytes = A[B.i].data;
+			_gotFile(fn, bytes);
+		}
+	}
+
+/* File to process */
+Gbin.onGot=function(filename, bytes) {
+	if(_GBIN.i===null) _gotFile(filename, bytes);
+	}
+
+function _gotFile(filename, bytes) {
 	GAME.f2=filename;	// just save
 	var f = filename.toUpperCase();
 	if(f.indexOf(".ROM")>0) {
@@ -189,7 +237,7 @@ Gbin.onGot=function(filename, bytes)
 		var needA = (fdc.drives.length==0);
 		if(needA) {
 			LOADDSK = ["EMPTY.zip"];
-			GoDisks();	// read emty disk to start it working
+			GoDisks();		// read empty disk to start it working
 			cpu.reset();
 			}
 		}
