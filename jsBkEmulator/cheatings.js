@@ -178,6 +178,11 @@ if(GAME.name)
 		if(Q!=null) Q.innerHTML = _POP_prep_list();
 	}
 	break;
+ // The Goonies 
+ case "Goonies":
+	var v12580 = base.readWORD(12580);
+	if( v12580 < 50 ) base.writeWord(12580, 50);			// I dont wana die...
+	break;	
  }
  
  if(GAME.f)
