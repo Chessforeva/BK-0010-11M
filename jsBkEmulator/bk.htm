@@ -107,6 +107,7 @@ Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
   <option value="NORDBK">Nord OS 2.11 (BK10)</option>
   <option value="ANDOS33a">ANDOS only (BK11)</option>
   <option value="ANDOS33b">ANDOS empty (BK11)</option>
+  <option value="20MBhdd">20Mb HDD C:</option>
   <option value="CVXS">ANDOS Covox demos</option>
   <option value="MzRz">MusicRelease demo</option>
   <option value="Lecsic">Lecsicon music demo</option>  
@@ -499,6 +500,7 @@ function userBoot() {
  case "NORDBK": startdisks(0,["NORDBK10.zip"],1); sHelper(5,7); break;
  case "ANDOS33a": startdisks(1,["SYSEMPTY.zip"],1); break;
  case "ANDOS33b": startdisks(1,["EMPTY.zip"],1); break;
+ case "20MBhdd": LOADDSK[0]="mb20.zip"; GoDisks(); break;
  case "CVXS": startdisks(1,["covoxs.zip"],1); sHelper(8,4); sound_sv="cvx"; break; 
  case "MzRz": startdisks(1,["MZRLSE.zip"],1); sColor(3); sHelper(5,1); sound_sv="8910c3"; break;
  case "Lecsic": base.setSMK11Model(); startdisks(1,["lecsicon.zip"],1); _add_gm_adv(2); cpu.reset();
