@@ -176,7 +176,6 @@ function addSpaceListenerOnly(canvas) {
 function addTouchListeners(canvas) {
 
         var split = false;
-        if (options && options.splitInfo) { split = true; }
         if (TOUCH_CTRL.splitInfo)  { split = true; }
 
         buildZones(split);

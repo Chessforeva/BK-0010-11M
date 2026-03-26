@@ -1277,6 +1277,10 @@ this.smk_writeWordBrute = function(/*int*/addr, /*short*/data) {
 	r[7]=this.readWORD(180);
   }
  
+ //Load a code bypassing monitor:  JSR PC, @#125656
+ // o125656 = 43950  Load from Tape
+ // o125712 =  43978   Write to Tape
+ 
   this.TapeEMT36 = function() {
 	  if( self.FakeTape.wr ) this.TapeBinSaver();
 	  else this.TapeBinLoader();
