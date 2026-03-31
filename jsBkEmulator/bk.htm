@@ -63,7 +63,7 @@ var WindoW = winWiHi();
 >
 <div id="filesloaded" style="display:inline">
 Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one, or
-<span id="browseBtn" style="text-decoration: underline; cursor: pointer; background-color: #4af; color: white;">[browse]</span>.</div>
+<span id="browseBtn" style="text-decoration: underline; cursor: pointer; background-color: #184079; color: white;">[browse]</span>.</div>
 <input type="file" id="fileInput" style="display: none;">
 </div>
 
@@ -398,13 +398,17 @@ e.stopPropagation();
 return false;
 };
 
-var fileInput = document.getElementById('fileInput');
-var browseBtn = document.getElementById('browseBtn');
-// Trigger browse on click
-browseBtn.onclick =  function() { fileInput.click(); }
-// Handle file selection via browse
-fileInput.onchange = function(e) { Gbin.r(e.target.files[0]); }
+var fileInput = null;
+var browseBtn = null;
 
+function browSet() {
+	fileInput = GE('fileInput');
+	browseBtn = GE('browseBtn');
+	// Trigger browse on click
+	browseBtn.onclick =  function() { fileInput.click(); }
+	// Handle file selection via browse
+	fileInput.onchange = function(e) { Gbin.r(e.target.files[0]); }
+}
 
 //-----------------------
 // The main BK global 
@@ -467,7 +471,8 @@ function loaded() {
   TOUCH_CTRL.duration_loops = 20;
   if(MOBILE_) addTouchListeners(O);
   else addSpaceListenerOnly(O);
-   
+  
+  browSet();
   }
 }
 
