@@ -62,7 +62,9 @@ var WindoW = winWiHi();
         text-align: center; font: 12pt bold; color: black;"
 >
 <div id="filesloaded" style="display:inline">
-Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one
+Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one, or
+<span id="browseBtn" style="text-decoration: underline; cursor: pointer; background-color: #4af; color: white;">[browse]</span>.</div>
+<input type="file" id="fileInput" style="display: none;">
 </div>
 
 <canvas id="BK_canvas" width="512px" height="256px" class="disSel"
@@ -395,6 +397,13 @@ e.preventDefault();
 e.stopPropagation();
 return false;
 };
+
+var fileInput = document.getElementById('fileInput');
+var browseBtn = document.getElementById('browseBtn');
+// Trigger browse on click
+browseBtn.onclick =  function() { fileInput.click(); }
+// Handle file selection via browse
+fileInput.onchange = function(e) { Gbin.r(e.target.files[0]); }
 
 
 //-----------------------
@@ -1163,7 +1172,6 @@ function closeFullscreen() {
   }
   FullScreen=0;
 }
-
 
 </script>
 
