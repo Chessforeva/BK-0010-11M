@@ -59,11 +59,15 @@ var WindoW = winWiHi();
 <div class="disSel" id="dropfile" style="position:absolute;left:0px;top:0px;
 	width:674px;height:512px;
         border: 2px dashed #333333; border-radius: 5px;
-        text-align: center; font: 12pt bold; color: black;"
->
+        text-align: center; font: 12pt bold; color: black;">
+<div id="browseBtn" style="position:absolute; left:10px; background:#184079; color:white;
+		text-decoration: underline; cursor: pointer;
+        background-color: #184079;">[browse]</div>
+
 <div id="filesloaded" style="display:inline">
-Drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped one, or
-<span id="browseBtn" style="text-decoration: underline; cursor: pointer; background-color: #184079; color: white;">[browse]</span>.</div>
+or drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped.
+</div>
+
 <input type="file" id="fileInput" style="display: none;">
 
 <canvas id="BK_canvas" width="512px" height="256px" class="disSel"
