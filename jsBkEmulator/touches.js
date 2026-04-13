@@ -32,15 +32,15 @@ KBUT_ = [];
 function AddKeyButtons()
 {
     addKey( "Esc",0, 1000,  690,10, 90,90 );
-    addKey( "Enter",0, 10,  790,10, 180,90 );
+    addKey( "Enter",0, 10,  790,6, 210,100 );
     
-    addKey( "Left",0, 8,  680,130, 100,220 );
-    addKey( "Up",0, 26,  786,116, 100,110 );
-    addKey( "Down",0, 27,  786,240, 100,110 );
-    addKey( "Right",0, 25,  892,130, 100,220 );
+    addKey( "Left",0, 8,  680,130, 110,240 );
+    addKey( "Up",0, 26,  790,116, 110,130 );
+    addKey( "Down",0, 27,  790,250, 110,130 );
+    addKey( "Right",0, 25,  900,130, 110,240 );
     
-    addKey( "Delete",0, 46,  932,386, 60,60 );
-    addKey( "Space",0, 32,  680,386, 240,90 );
+    addKey( "Delete",0, 46,  936,400, 70,80 );
+    addKey( "Space",0, 32,  680,390, 250,120 );
 }
 
 KBF_ = [];
