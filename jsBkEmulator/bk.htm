@@ -106,6 +106,7 @@ or drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped.
   <option value="Insl">INSULT MUSIC DEMO</option>
   <option value="HNY2020">HNY2020 music demo</option>
   <option value="CSqld">CS!quel music demo</option>
+  <option value="CShlt">CS!halt music demo</option>
   <option value="Covid">Covid music demo</option>
   <option value="AODOS">AODOS 2.10 chess</option>
   <option value="MKDOS">MKDOS 2.10</option>
@@ -131,7 +132,9 @@ or drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped.
   <option value="*4">--------------------</option>
   <option value="aDSK0">Add an empty AN-bkd to B:</option>
   <option value="aDSK1">Add an empty CSI-img to B:</option>
-	  
+  <option value="*5">--- experimental----</option>
+  <option value="perf1">TrySkipDrawOnLags1</option>	  
+  <option value="perf2">TrySkipDrawOnLags2</option>	  
 
   <!--<option value="aDSK0">Add unformatted disk</option>-->
  </select>
@@ -151,7 +154,7 @@ or drop a .COD .BIN .BKD .IMG .HDI .ROM file here, or zipped.
   <option value="WB">W/B</option>
   <option value="GR4">Gray4</option>
   <option value="COL">Col16</option>
- </select></td><td width="2"></td>
+ </select></td><td width="2"></td>r
  
  <td valign="top">
  <select id="userspeed" onchange="userSpeed()"
@@ -511,6 +514,7 @@ function userBoot() {
  case "Insl": startdisks(1,["INSULT.zip"],1); sColor(3); sHelper(5,1); sound_sv="8910c3"; break;
  case "HNY2020": startdisks(1,["hny2020.zip"],1); sColor(3); sHelper(5,6); sound_sv="8910mx"; base.perf=1; break;  
  case "CSqld": startdisks(1,["csquel.zip"],1); sColor(3); sHelper(5,6); sound_sv="8910mx"; _add_gm_adv(2); break;
+ case "CShlt": startdisks(1,["cshalt.zip"],1); sColor(3); sHelper(5,8); sound_sv="8910c3"; _add_gm_adv(2); break;
  case "Covid": startdisks(1,["COVID.zip"],1); sHelper(5,1); sound_sv="8910mx"; base.perf=1; break;
  case "AODOS": startdisks(1,["AODOS.zip"],1); break;
  case "MKDOS": startdisks(1,["MKDOS.zip"],1); break;
@@ -539,6 +543,8 @@ function userBoot() {
  case "Cheat": cheatings.cheathelp(); O.value = "*3"; break;
  case "aDSK0": if(base.dsks) /*fdc.addDisk("empty.bkd",[])*/  { LOADDSK[0]="EMPTY.zip"; GoDisks(); };  O.value = "*4"; break;
  case "aDSK1": if(base.dsks) { LOADDSK[0]="EMPTYCSI.zip"; GoDisks(); }; O.value = "*4"; break;
+ case "perf1": base.perf=1; O.value = "*4"; break;
+ case "perf2": base.perf=2; O.value = "*4"; break;
  }
  BK_autokeys = [];
 }
